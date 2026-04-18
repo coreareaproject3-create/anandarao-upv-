@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-dash-bg: #1e293b;
+  --color-dash-line: #0f172a;
+  --color-dash-accent: #3b82f6;
+  --color-dash-ink: #1e293b;
+  --color-dash-success: #22c55e;
+  --color-dash-error: #ef4444;
+  --color-dash-warning: #f59e0b;
+  --color-dash-info: #0ea5e9;
+}
+
+body {
+  @apply bg-white font-sans min-h-screen text-slate-900 overflow-x-hidden;
+}
+
+.concrete-layer {
+  @apply fixed inset-0 z-0 opacity-80;
+  background-color: #ffffff;
+  background-image: 
+    /* Dense dot grid */
+    radial-gradient(#cbd5e1 0.8px, transparent 0.8px),
+    /* Sparse geometric symbols (triangles and slashes) - Increased visibility */
+    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2364748b' stroke-width='1.5' opacity='1'%3E%3Cpath d='M10 10 L20 10 L15 18 Z'/%3E%3Cpath d='M50 40 L60 55'/%3E%3Cpath d='M90 20 L100 20 L95 28 Z'/%3E%3Cpath d='M30 80 L45 95'/%3E%3Cpath d='M80 85 L90 85 L85 93 Z'/%3E%3Cpath d='M10 100 L25 115'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 8px 8px, 120px 120px;
+}
+
+.blueprint-grid {
+  @apply fixed inset-0 opacity-[0.03] pointer-events-none;
+  background-image: linear-gradient(var(--color-dash-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-dash-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.metric-card {
+  @apply bg-white border-2 border-dash-line p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] flex flex-col gap-1;
+}
+
+.input-label {
+  @apply text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none;
+}
+
+.dash-input {
+  @apply w-full bg-slate-50 border-2 border-dash-line p-2 font-mono font-bold text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-dash-accent/50 transition-all rounded-none;
+}
+
+.digital-flicker {
+  animation: flicker 4s infinite alternate;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  95% { opacity: 0.9; }
+  96% { opacity: 1; }
+}
+
+.scan-line {
+  @apply absolute left-0 right-0 h-[1px] bg-slate-400/10 opacity-50 pointer-events-none;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.login-concrete-cube {
+  transform: rotateX(2deg) rotateY(-2deg);
+  box-shadow: 20px 20px 40px rgba(0,0,0,0.2);
+}
+
+.concrete-texture {
+  background-image: url("https://www.transparenttextures.com/patterns/concrete-wall.png");
+}
+
+.sticky-th {
+  @apply bg-[#F9FAFB] p-4 text-[11px] font-black text-slate-500 border-b-2 border-dash-line uppercase tracking-widest;
+}
+
+.vertical-rl {
+  writing-mode: vertical-rl;
+}
+
