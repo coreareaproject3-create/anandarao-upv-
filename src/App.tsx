@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactNode } from 'react';
+import React, { useState, useMemo, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, 
@@ -30,11 +30,33 @@ const QUALITY_CRITERIA: ConcreteCriteria[] = [
 
 const VS = 5.2; // Steel Velocity (km/s)
 
+const ConcreteHatch = () => (
+  <svg width="100%" height="100%" className="absolute inset-0 pointer-events-none opacity-[0.35] text-slate-600">
+    <defs>
+      <pattern id="concrete-hatch" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+        {/* Triangles (Aggregate) - High contrast technical grey */}
+        <path d="M15 15 L30 22 L22 35 Z" fill="#475569" stroke="#1e293b" strokeWidth="0.8" />
+        <path d="M60 45 L75 30 L90 52 Z" fill="#64748b" stroke="#1e293b" strokeWidth="0.8" />
+        <path d="M110 15 L125 35 L105 28 Z" fill="#475569" stroke="#1e293b" strokeWidth="0.8" />
+        <path d="M30 100 L45 125 L15 115 Z" fill="#94a3b8" stroke="#1e293b" strokeWidth="0.8" />
+        <path d="M90 115 L112 100 L125 130 Z" fill="#64748b" stroke="#1e293b" strokeWidth="0.8" />
+        <path d="M65 85 L80 105 L50 100 Z" fill="#475569" stroke="#1e293b" strokeWidth="0.8" />
+        
+        {/* Particles */}
+        <circle cx="10" cy="65" r="1" fill="#1e293b" />
+        <circle cx="35" cy="10" r="1" fill="#1e293b" />
+        <circle cx="100" cy="55" r="1" fill="#1e293b" />
+        <circle cx="140" cy="95" r="1" fill="#1e293b" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#concrete-hatch)" />
+  </svg>
+);
+
 // Technical Visual Guide Component
 const VisualGuide = ({ method }: { method: CorrectionMethod }) => {
   return (
     <div className="w-full bg-slate-900 border-2 border-dash-line p-4 rounded-none relative overflow-hidden group">
-      <div className="absolute inset-0 blueprint-grid opacity-10 pointer-events-none" />
       <div className="relative z-10">
         <div className="flex justify-between items-center mb-4">
           <span className="text-[10px] font-black text-dash-accent uppercase tracking-widest bg-white px-2 py-0.5">Reference Diagram</span>
@@ -123,9 +145,9 @@ const VisualGuide = ({ method }: { method: CorrectionMethod }) => {
 // Technical Visual Components
 const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
   return (
-    <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 px-6 py-12">
+    <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-40 px-6 py-12">
       {/* Transducer - TX (Left) */}
-      <div className="order-2 md:order-1 flex flex-col items-center gap-4 shrink-0">
+      <div className="order-2 md:order-1 flex flex-col items-center gap-4 shrink-0 transition-transform duration-500 hover:scale-110">
         <div className="w-24 h-24 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_30px_rgba(59,130,246,0.3)] group z-20">
           <div className="absolute inset-2 rounded-full border border-white/5" />
           <div className="absolute -right-4 w-6 h-12 bg-slate-800 border-y-4 border-r-4 border-dash-line rounded-r-md shadow-lg" />
@@ -145,10 +167,10 @@ const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
       </div>
 
       {/* The Specimen (Concrete Cube) - Login Box Wrapper */}
-      <div className="order-1 md:order-2 relative group perspective-1000 w-full max-w-md">
-        {/* Oscilloscope Waveform THROUGH Container - Matching Reference Image */}
-        <div className="absolute inset-x-[-100px] inset-y-0 z-20 overflow-hidden pointer-events-none">
-          <svg viewBox="0 0 700 200" preserveAspectRatio="none" className="w-full h-full opacity-90 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">
+      <div className="order-1 md:order-2 relative group perspective-1000 w-full max-w-md z-10">
+        {/* Oscilloscope Waveform THROUGH Container - Pulse background */}
+        <div className="absolute inset-x-[-150%] inset-y-0 z-[-1] overflow-hidden pointer-events-none flex justify-center items-center">
+          <svg viewBox="0 0 1400 200" preserveAspectRatio="none" className="w-[1400px] h-full opacity-40 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
             <defs>
               <filter id="waveGlow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -157,60 +179,78 @@ const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
+              <radialGradient id="pulseGradient">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+              </radialGradient>
             </defs>
             
             {/* Horizontal Baseline Glow */}
             <motion.line 
-              x1="0" y1="100" x2="700" y2="100" 
-              stroke="white" 
-              strokeWidth="1.5"
-              opacity="0.8"
-            />
-            <motion.line 
-              x1="0" y1="100" x2="700" y2="100" 
+              x1="200" y1="100" x2="1200" y2="100" 
               stroke="#3b82f6" 
+              strokeWidth="2"
+              opacity="0.3"
+            />
+            
+            {/* Traveling Discrete Pulse - Precise UPV Apparatus Ping */}
+            <motion.path
+              d="M 0 100 L 20 100 L 25 20 L 35 180 L 45 40 L 55 160 L 65 80 L 75 120 L 85 100 L 110 100"
+              fill="none"
+              stroke="#0284c7"
               strokeWidth="4"
-              opacity="0.4"
               filter="url(#waveGlow)"
+              animate={{ 
+                x: [200, 1090],
+                opacity: [0, 1, 1, 0]
+              }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity, 
+                ease: "linear",
+                times: [0, 0.05, 0.95, 1],
+                repeatDelay: 0.8
+              }}
             />
 
-            {/* Simulated Complex High-Frequency Waveforms */}
-            {[0, 1, 2].map((layer) => (
-              <motion.path
-                key={layer}
-                d={`M 0 100 ${Array.from({ length: 40 }).map((_, i) => {
-                  const x = (i / 40) * 700;
-                  const amp = 30 + Math.random() * 40;
-                  const freq = layer === 0 ? 0.05 : layer === 1 ? 0.12 : 0.08;
-                  const y = 100 + Math.sin(x * freq) * amp * (layer % 2 === 0 ? 1 : -1);
-                  return `S ${x + 5} ${y}, ${x + 17.5} 100`;
-                }).join(' ')}`}
-                fill="none"
-                stroke={layer === 0 ? "white" : layer === 1 ? "#60a5fa" : "#3b82f6"}
-                strokeWidth={layer === 0 ? "1" : "1.5"}
-                opacity={layer === 0 ? "0.6" : "0.4"}
-                filter="url(#waveGlow)"
-                animate={{
-                  x: [-350, 0]
-                }}
-                transition={{
-                  duration: 1.5 + layer * 0.5,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
-            ))}
+            {/* Traveling Pulse Highlight Glow */}
+            <motion.circle
+              r="100"
+              fill="url(#pulseGradient)"
+              animate={{ cx: [200, 1200] }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity, 
+                ease: "linear",
+                repeatDelay: 0.8
+              }}
+              style={{ filter: 'blur(25px)' }}
+            />
           </svg>
         </div>
         
         {/* Background Overlay to ensure wave visibility on top of the concrete background */}
         <div className="absolute inset-0 z-0 bg-slate-900/10 pointer-events-none" />
 
+        {/* Dynamic Highlight Sweep - Synchronized with Pulse */}
+        <motion.div 
+          className="absolute inset-0 z-[5] pointer-events-none bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ 
+            duration: 0.8, // Duration within the box
+            repeat: Infinity, 
+            ease: "linear",
+            repeatDelay: 1.5, // 0.8 + 1.5 = 2.3 total cycle
+            delay: 0.4 // Sync with pulse entry
+          }}
+        />
+
         {children}
       </div>
 
       {/* Transducer - RX (Right) */}
-      <div className="order-3 flex flex-col items-center gap-4 shrink-0">
+      <div className="order-3 flex flex-col items-center gap-4 shrink-0 transition-transform duration-500 hover:scale-110">
         <div className="w-24 h-24 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_30px_rgba(34,197,94,0.3)] group z-20">
           <div className="absolute inset-2 rounded-full border border-white/5" />
           <div className="absolute -left-4 w-6 h-12 bg-slate-800 border-y-4 border-l-4 border-dash-line rounded-l-md shadow-lg" />
@@ -247,6 +287,7 @@ export default function App() {
   const [barDiameter, setBarDiameter] = useState<number>(12);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   // Batch Mode States
@@ -545,6 +586,35 @@ export default function App() {
     doc.save(`UPV_Batch_Report_${new Date().getTime()}.pdf`);
   };
 
+  const sendEmailReport = async () => {
+    if (!user) return;
+    setIsSendingEmail(true);
+    try {
+      const response = await fetch('/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          results: isBatchMode ? batchResults : results,
+          method,
+          parameters: isBatchMode ? null : { pathLength, pulseTime, offsetDistance, barDiameter }
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        showToast("Laboratory report sent to your inbox", "success");
+      } else {
+        showToast(data.error || data.warning || "Failed to send report", "error");
+      }
+    } catch (error) {
+      console.error("Email dispatch failed:", error);
+      showToast("Mailing service unavailable", "error");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   const getQualityBg = (quality: string) => {
     switch (quality) {
       case 'Excellent': return 'bg-dash-success';
@@ -557,8 +627,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex text-dash-ink">
-      <div className="concrete-layer" />
-      <div className="blueprint-grid" />
 
       <AnimatePresence mode="wait">
         {!user ? (
@@ -570,8 +638,8 @@ export default function App() {
             className="fixed inset-0 z-[100] flex items-center justify-center p-6"
           >
             <UPVWaveAnimation>
-              <div className="relative z-10 bg-[#ced4da] border-4 border-dash-line p-8 w-full max-w-md shadow-[16px_16px_0px_0px_rgba(0,0,0,0.3)] login-concrete-cube overflow-hidden group/cube">
-                <div className="absolute inset-0 concrete-texture opacity-40 pointer-events-none group-hover/cube:opacity-60 transition-opacity duration-700" />
+              <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line p-8 w-full max-w-md shadow-[16px_16px_0px_0px_rgba(0,0,0,0.3)] login-concrete-cube overflow-hidden group/cube">
+                <ConcreteHatch />
                 <div className="relative z-10">
                   <div className="mb-8 text-center text-dash-ink">
                     <h2 className="text-2xl font-black uppercase tracking-tighter italic drop-shadow-sm">UPV Analysis Tool for Reinforced Concrete</h2>
@@ -669,24 +737,16 @@ export default function App() {
 
             {/* Sidebar */}
             <aside className={cn(
-              "fixed inset-y-0 left-0 z-40 w-[300px] bg-white border-r-2 border-dash-line p-6 flex flex-col gap-6 transition-transform lg:relative lg:translate-x-0 overflow-y-auto",
-              sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+              "fixed inset-y-0 left-0 z-40 w-[300px] bg-white border-r border-slate-200 p-6 flex flex-col gap-6 transition-transform lg:relative lg:translate-x-0 overflow-y-auto shrink-0",
+              sidebarOpen ? "translate-x-0 shadow-[20px_0_40px_rgba(0,0,0,0.1)]" : "-translate-x-full"
             )}>
-              <div className="pb-5 border-b-2 border-dash-line">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Laboratory Status: Online</span>
-                </div>
-                <h2 className="text-[14px] font-black text-dash-ink uppercase tracking-tighter mb-1 border-l-4 border-dash-accent pl-2">THIAGARAJAR COLLEGE OF ENGINEERING</h2>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest pl-2">Dept. of Civil Engineering</p>
-              </div>
-
-              <div className="flex bg-slate-100 p-1 border-2 border-dash-line">
+              {/* Mode Toggle at extreme top */}
+              <div className="flex bg-slate-100 p-1 rounded-none border border-slate-200">
                 <button 
                   onClick={() => setIsBatchMode(false)}
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                    !isBatchMode ? "bg-white text-dash-ink shadow-[2px_2px_0] border border-dash-line" : "text-slate-400 hover:text-dash-ink"
+                    !isBatchMode ? "bg-white text-slate-800 shadow-sm border border-slate-200" : "text-slate-400 hover:text-slate-800"
                   )}
                 >
                   <Activity size={12} />
@@ -696,12 +756,23 @@ export default function App() {
                   onClick={() => setIsBatchMode(true)}
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                    isBatchMode ? "bg-blue-600 text-white shadow-[2px_2px_0_rgba(0,0,0,0.3)] border border-blue-400" : "text-slate-400 hover:text-dash-ink"
+                    isBatchMode ? "bg-white text-slate-800 shadow-sm border border-slate-200" : "text-slate-400 hover:text-slate-800"
                   )}
                 >
                   <TableIcon size={12} />
                   Batch
                 </button>
+              </div>
+
+              <div className="pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Laboratory Status: Online</span>
+                </div>
+                <div className="border-l-[4px] border-blue-600 pl-4 py-1">
+                  <h2 className="text-[14px] font-black text-slate-800 uppercase tracking-tighter leading-[1.1]">Thiagarajar College of Engineering</h2>
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Dept. of Civil Engineering</p>
+                </div>
               </div>
 
               <div className="py-2 mb-2 border-b-2 border-dash-line border-dashed">
@@ -711,8 +782,8 @@ export default function App() {
                     {user.name.charAt(0)}
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-[12px] font-bold text-dash-ink truncate">{user.name}</p>
-                    <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+                    <p className="text-[12px] font-black text-blue-700 truncate capitalize">{user.name}</p>
+                    <p className="text-[10px] font-bold text-slate-700 truncate">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -827,31 +898,43 @@ export default function App() {
               </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 p-8 flex flex-col gap-8 overflow-y-auto bg-slate-50 border-x-2 border-dash-line">
-              <header className="flex justify-between items-end shrink-0 border-b-4 border-dash-line pb-4">
-                <div className="space-y-1">
-                  <p className="text-[12px] font-black text-white bg-dash-line px-2 w-fit uppercase tracking-widest">
-                    {greeting}, {user.name}
-                  </p>
-                  <h1 className="text-4xl font-black tracking-tighter text-dash-ink drop-shadow-sm uppercase italic whitespace-pre-line">UPV Analysis Tool{"\n"}for Reinforced Concrete</h1>
+            {/* Main Content Dashboard */}
+            <main className="flex-1 min-w-0 px-12 py-12 flex flex-col gap-10 overflow-y-auto bg-dash-bg">
+              {/* Header Section */}
+              <div className="relative z-10 shrink-0">
+                <div className="inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-2 uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] border border-blue-400">
+                  {greeting}, {user.name}.
                 </div>
-                <div className="flex flex-col items-end gap-2 text-right">
-                  <div className={cn(
-                    "border-2 border-dash-line px-4 py-1 font-black text-[11px] uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]",
-                    isBatchMode ? "bg-blue-600 text-white border-blue-400" : "bg-white text-dash-ink"
-                  )}>
-                    {isBatchMode ? `Batch Analysis Active (${batchResults.length})` : (method === 'no-correction' ? 'Raw Data' : 'Correction Active')}
+                
+                <div className="flex justify-between items-start">
+                  <h1 className="text-[42px] font-black text-white uppercase tracking-tighter italic leading-[0.9] transform -skew-x-6 drop-shadow-md">
+                    UPV Analysis Tool <br /> For Reinforced Concrete
+                  </h1>
+
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={sendEmailReport}
+                      disabled={isSendingEmail}
+                      className="px-6 py-2 border-2 border-blue-400 bg-blue-600 text-white font-black text-[11px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg active:translate-y-1 block disabled:opacity-50"
+                    >
+                      {isSendingEmail ? 'Dispatching...' : 'Email Report'}
+                    </button>
+                    <button 
+                      onClick={generatePDF}
+                      className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
+                    >
+                      Raw Data
+                    </button>
+                    <button 
+                      onClick={() => setUser(null)}
+                      className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white flex items-center gap-2 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
+                    >
+                      <LogOut size={14} />
+                      Logout Session
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setUser(null)}
-                    className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 border-2 border-dash-line text-[10px] font-black uppercase text-dash-ink px-3 py-1.5 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                  >
-                    <LogOut size={12} />
-                    Logout Session
-                  </button>
                 </div>
-              </header>
+              </div>
 
               {isBatchMode && batchStats && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
@@ -875,227 +958,224 @@ export default function App() {
                 </div>
               )}
 
-              {isBatchMode ? (
-                <div className="bg-white border-4 border-dash-line rounded-none flex-1 flex flex-col overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] translate-y-1">
-                  <div className="p-4 border-b-4 border-dash-line flex justify-between items-center bg-[#F9FAFB] shrink-0">
-                    <div className="flex items-center gap-3">
-                      <TableIcon size={18} className="text-dash-accent" />
-                      <h4 className="text-[14px] font-black uppercase tracking-tight">Batch Inspection Log</h4>
+              {!isBatchMode ? (
+                /* SINGLE MEASUREMENT VIEW */
+                <div className="space-y-10 relative z-10 flex flex-col flex-1 pb-10">
+                  {/* Results Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="metric-card border-b-4 border-blue-500">
+                      <span className="input-label">Measured Velocity</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[44px] font-black italic text-slate-800 tracking-tighter">{results.measuredVelocity.toFixed(3)}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">km/s</span>
+                      </div>
+                      <div className="mt-2 w-full h-[1px] bg-blue-100" />
                     </div>
-                    {batchResults.length > 0 && (
-                      <button 
-                        onClick={() => setBatchData([])}
-                        className="text-[10px] font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-widest"
-                      >
-                        Reset Batch
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="overflow-auto flex-1">
-                    <table className="w-full border-collapse">
-                      <thead className="sticky top-0 z-10">
-                        <tr>
-                          <th className="sticky-th text-left">Location / ID</th>
-                          <th className="sticky-th text-left">Method</th>
-                          <th className="sticky-th text-center">Parameters</th>
-                          <th className="sticky-th text-right">Corrected Vc</th>
-                          <th className="sticky-th text-center">Quality</th>
-                          <th className="sticky-th text-center w-10">Op</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {batchResults.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="p-20 text-center text-slate-300">
-                              <div className="flex flex-col items-center gap-2">
-                                <Activity size={48} className="opacity-20 translate-y-[-10px]" />
-                                <p className="text-[11px] font-black uppercase tracking-[0.2em]">Ready for batch entry</p>
-                                <p className="text-[10px]">Adjust parameters in sidebar and click "Commit to Batch"</p>
-                              </div>
-                            </td>
-                          </tr>
-                        ) : (
-                          batchResults.map((reading) => (
-                            <tr key={reading.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                              <td className="p-4">
-                                <span className="text-[13px] font-black text-dash-ink">{reading.location}</span>
-                              </td>
-                              <td className="p-4">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase">{reading.method}</span>
-                              </td>
-                              <td className="p-4">
-                                <div className="flex justify-center gap-3 text-[10px] font-mono font-bold text-slate-400">
-                                  <span>L:{reading.pathLength}</span>
-                                  <span>T:{reading.pulseTime}</span>
-                                </div>
-                              </td>
-                              <td className="p-4 text-right">
-                                <span className="text-[14px] font-black text-dash-accent font-mono">{reading.results!.correctedVelocity.toFixed(3)}</span>
-                              </td>
-                              <td className="p-4">
-                                <div className="flex justify-center">
-                                  <span className={cn(
-                                    "px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-white",
-                                    getQualityBg(reading.results!.quality)
-                                  )}>
-                                    {reading.results!.quality}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <button 
-                                  onClick={() => removeFromBatch(reading.id)}
-                                  className="text-slate-300 hover:text-red-500 transition-colors"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
-                    <motion.div 
-                      whileHover={{ scale: 1.02, translateY: -4 }}
-                      className="metric-card group overflow-hidden relative cursor-default hover:border-dash-accent transition-colors"
-                    >
-                      <div className="scan-line" />
-                      <span className="input-label group-hover:text-dash-accent transition-colors">Measured Velocity</span>
-                      <div className="font-mono text-4xl font-black flex items-baseline gap-1 digital-flicker">
-                        {results.measuredVelocity.toFixed(3)}
-                        <span className="text-sm font-sans text-slate-400 font-bold uppercase">km/s</span>
+
+                    <div className="metric-card border-b-4 border-slate-400">
+                      <span className="input-label">Factor (K)</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[44px] font-black italic text-slate-800 tracking-tighter">{results.kFactor?.toFixed(3) || '1.000'}</span>
                       </div>
-                      <div className="absolute right-[-10px] bottom-[-10px] text-slate-100 opacity-20 pointer-events-none group-hover:scale-110 group-hover:text-dash-accent group-hover:opacity-10 transition-all duration-300">
-                        <Scale size={60} strokeWidth={3} />
+                      <div className="mt-2 w-full h-[1px] bg-slate-100" />
+                    </div>
+
+                    <div className="metric-card border-b-4 border-blue-600 relative overflow-hidden">
+                      <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-[0.03] text-blue-600 pointer-events-none transform scale-150">
+                        <CheckCircle2 size={100} />
                       </div>
-                    </motion.div>
-                    <motion.div 
-                      whileHover={{ scale: 1.02, translateY: -4 }}
-                      className="metric-card group overflow-hidden relative cursor-default hover:border-dash-accent transition-colors"
-                    >
-                      <div className="scan-line" />
-                      <span className="input-label group-hover:text-dash-accent transition-colors">Factor (K)</span>
-                      <div className="font-mono text-4xl font-black digital-flicker">
-                        {results.kFactor !== undefined ? results.kFactor.toFixed(3) : "1.000"}
+                      <span className="input-label text-blue-600">Corrected Velocity (Vc)</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[44px] font-black italic text-blue-600 tracking-tighter">{results.correctedVelocity.toFixed(3)}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">km/s</span>
                       </div>
-                      <div className="absolute right-[-10px] bottom-[-10px] text-slate-100 opacity-20 pointer-events-none group-hover:scale-110 group-hover:text-dash-accent group-hover:opacity-10 transition-all duration-300">
-                        <Calculator size={60} strokeWidth={3} />
-                      </div>
-                    </motion.div>
-                    <motion.div 
-                      whileHover={{ scale: 1.02, translateY: -4 }}
-                      className="metric-card group overflow-hidden relative border-dash-accent cursor-default shadow-[8px_8px_0px_0px_rgba(37,99,235,0.1)]"
-                    >
-                      <div className="scan-line !bg-dash-accent" />
-                      <span className="input-label text-dash-accent">Corrected Velocity (Vc)</span>
-                      <div className="font-mono text-4xl font-black text-dash-accent digital-flicker">
-                        {results.correctedVelocity.toFixed(3)}
-                        <span className="text-sm font-sans text-slate-400 font-bold uppercase ml-1">km/s</span>
-                      </div>
-                      <div className="absolute right-[-10px] bottom-[-10px] text-dash-accent opacity-5 pointer-events-none group-hover:scale-110 group-hover:opacity-20 transition-all duration-300">
-                        <CheckCircle2 size={60} strokeWidth={3} />
-                      </div>
-                    </motion.div>
+                    </div>
                   </div>
 
                   {results.influenceMsg && (
-                    <motion.div 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={cn(
+                    <div className={cn(
                         "px-4 py-2 border-2 font-black text-[11px] uppercase tracking-widest flex items-center gap-2 w-fit shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]",
                         results.influencePresent === false 
-                          ? "bg-white border-dash-line text-slate-500" 
-                          : "bg-white border-dash-accent text-dash-accent"
+                          ? "bg-white border-dashed border-slate-300 text-slate-500" 
+                          : "bg-white border-blue-600/50 text-blue-600"
                       )}
                     >
                       {results.influencePresent === false ? <Info size={14} /> : <AlertCircle size={14} />}
                       {results.influenceMsg}
-                    </motion.div>
+                    </div>
                   )}
 
-                  <motion.div 
-                    whileHover={{ scale: 1.01 }}
-                    className={cn(
-                      "p-8 rounded-none border-4 border-dash-line flex items-center justify-between text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] transition-colors duration-500 shrink-0 relative overflow-hidden group/quality cursor-default",
-                      getQualityBg(results.quality)
-                    )}
-                  >
-                    <div className="absolute inset-0 blueprint-grid opacity-10 pointer-events-none" />
-                    <div className="relative z-10 space-y-1">
-                      <h3 className="text-[14px] uppercase font-black opacity-80 tracking-tighter">Diagnostic Result</h3>
-                      <h2 className="text-5xl font-black tracking-tighter uppercase italic group-hover/quality:translate-x-2 transition-transform duration-500">{results.quality} QUALITY</h2>
+                  {/* Diagnostic Result Bar - Vibrant Blue */}
+                  <div className="bg-[#1e40af] border-[3px] border-slate-900 p-8 flex items-center justify-between shadow-[20px_20px_0px_0px_rgba(0,0,0,0.15)] relative overflow-hidden group hover:shadow-[24px_24px_0px_0px_rgba(0,0,0,0.2)] transition-all duration-500 cursor-default">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-700/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-white/10 to-transparent skew-x-12 translate-x-40 group-hover:translate-x-20 transition-transform duration-1000" />
+                    
+                    <div className="relative z-10">
+                      <span className="text-[10px] font-black text-blue-200 uppercase tracking-[0.4em] mb-4 block underline underline-offset-8 decoration-blue-400/40">Diagnostic Result</span>
+                      <h3 className="text-[64px] font-black text-white italic uppercase tracking-tighter leading-none transform -skew-x-6 drop-shadow-lg group-hover:scale-105 transition-transform duration-500 origin-left">
+                        {results.quality} Quality
+                      </h3>
                     </div>
-                    <motion.div 
-                      animate={results.quality === 'Doubtful' ? { scale: [1, 1.1, 1] } : {}}
-                      transition={{ duration: 0.5, repeat: Infinity }}
-                      className="relative z-10 p-4 border-4 border-white/20"
-                    >
-                      {results.quality === 'Doubtful' || results.quality === 'Medium' ? <AlertCircle size={48} strokeWidth={3} /> : <CheckCircle2 size={48} strokeWidth={3} />}
-                    </motion.div>
-                  </motion.div>
 
-                  <div className="bg-white border-4 border-dash-line rounded-none flex-1 flex flex-col overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]">
-                    <div className="p-4 border-b-4 border-dash-line flex justify-between items-center bg-[#F9FAFB] shrink-0">
-                      <h4 className="text-[14px] font-black uppercase tracking-tight">Concrete Quality Classification Standard</h4>
-                      <span className="text-[11px] font-black text-white bg-dash-line px-2 uppercase tracking-widest">IS 516 : 2019 (Part 5)</span>
+                    <div className="w-28 h-28 border-[3px] border-white/30 flex items-center justify-center bg-white/10 shrink-0 backdrop-blur-sm group-hover:rotate-12 transition-transform duration-500">
+                      <CheckCircle2 size={54} strokeWidth={2.5} className="text-white" />
+                    </div>
+                  </div>
+
+                  {/* Classification Standard Table */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-end border-b-2 border-slate-800 pb-2">
+                      <h3 className="text-[13px] font-black text-slate-800 uppercase tracking-widest">Concrete Quality Classification Standard</h3>
+                      <span className="text-[9px] bg-slate-800 text-white px-3 py-1 font-black uppercase tracking-[0.2em] italic">IS 516 : 2019 (Part 5)</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-0 border border-slate-200 bg-white">
+                      {/* Header Row */}
+                      <div className="p-4 border-b border-r border-slate-200 bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Pulse Velocity (km/s)</div>
+                      <div className="p-4 border-b border-r border-slate-200 bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Condition</div>
+                      <div className="p-4 border-b border-slate-200 bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Status</div>
+
+                      {QUALITY_CRITERIA.map((q) => {
+                        const isActive = q.quality === results.quality;
+                        return (
+                          <React.Fragment key={q.quality}>
+                            <div className={cn("p-6 border-b border-r border-slate-100 font-bold text-[18px] text-slate-500", isActive && "bg-[#eff6ff] text-blue-900 font-black border-b-2 border-blue-200")}>
+                              {q.velocity}
+                            </div>
+                            <div className={cn("p-6 border-b border-r border-slate-100 font-black uppercase tracking-widest italic text-slate-500", isActive && "bg-[#eff6ff] text-blue-700 border-b-2 border-blue-200")}>
+                              {q.quality}
+                            </div>
+                            <div className={cn("p-6 border-b border-slate-100 flex items-center gap-3", isActive && "bg-[#eff6ff] border-b-2 border-blue-200")}>
+                              {isActive ? (
+                                <>
+                                  <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                                  <span className="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em]">Target Reached</span>
+                                </>
+                              ) : (
+                                <div className="w-10 h-[1px] bg-slate-100" />
+                              )}
+                            </div>
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Session Commitment Area */}
+                  <div className="mt-auto">
+                    <button 
+                      onClick={() => {
+                          setBatchData([...batchData, {
+                            id: Date.now().toString(),
+                            location: currentRowLocation || `Reading ${batchData.length + 1}`,
+                            method,
+                            pathLength,
+                            pulseTime,
+                            offsetDistance,
+                            barDiameter,
+                            results,
+                            timestamp: new Date().toISOString()
+                          }]);
+                          showToast(`Analysis Committed to Session Matrix`);
+                          setCurrentRowLocation('');
+                      }}
+                      className="px-10 py-5 bg-slate-800 text-white font-black uppercase tracking-widest text-[11px] border-2 border-slate-700 flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-[12px_12px_30px_rgba(0,0,0,0.2)] hover:shadow-[16px_16px_40px_rgba(0,0,0,0.3)] hover:-translate-y-1 active:scale-95 self-start"
+                    >
+                      <Plus size={16} /> Commit Reading to Session Table
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* BATCH ANALYSIS VIEW */
+                <div className="space-y-8 relative z-10 flex flex-col flex-1 pb-10">
+                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="metric-card">
+                      <span className="input-label">Total Matrix Readings</span>
+                      <p className="text-3xl font-black text-slate-800 italic">{batchData.length}</p>
+                    </div>
+                    <div className="metric-card border-blue-100 text-blue-600">
+                      <span className="input-label">Session Mean Vc</span>
+                      <p className="text-3xl font-black italic">{batchStats?.mean.toFixed(3) || '0.000'}</p>
+                    </div>
+                    <div className="metric-card">
+                      <span className="input-label">Std Deviation</span>
+                      <p className="text-3xl font-black text-slate-800 italic">{batchStats?.stdDev.toFixed(4) || '0.0000'}</p>
+                    </div>
+                    <div className="metric-card">
+                      <span className="input-label">Matrix Reliability</span>
+                      <p className="text-3xl font-black text-slate-800 italic">{(batchData.length > 0 ? 100 : 0)}%</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 shadow-2xl overflow-hidden flex flex-col flex-1">
+                    <div className="bg-slate-800 p-4 flex justify-between items-center text-white">
+                        <div className="flex items-center gap-3">
+                          <TableIcon size={16} className="text-blue-400" />
+                          <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">Active Laboratory Data Matrix</h3>
+                        </div>
                     </div>
                     
-                    <div className="overflow-auto">
+                    <div className="overflow-auto max-h-[500px]">
                       <table className="w-full border-collapse">
                         <thead>
-                          <tr>
-                            <th className="text-left bg-[#F9FAFB] p-4 text-[11px] font-serif italic text-slate-600 border-b-2 border-dash-line uppercase tracking-widest">Pulse Velocity (km/s)</th>
-                            <th className="text-left bg-[#F9FAFB] p-4 text-[11px] font-serif italic text-slate-600 border-b-2 border-dash-line uppercase tracking-widest">Condition</th>
-                            <th className="text-left bg-[#F9FAFB] p-4 text-[11px] font-serif italic text-slate-600 border-b-2 border-dash-line uppercase tracking-widest">Status</th>
+                          <tr className="bg-slate-50">
+                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Session ID</th>
+                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Compensation</th>
+                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Parameters</th>
+                            <th className="p-4 text-left text-[9px] font-black text-blue-600 uppercase tracking-widest border-b border-slate-200">Velocity (Vc)</th>
+                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Diagnostic</th>
+                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Action</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          {QUALITY_CRITERIA.map((item, idx) => {
-                            const isActive = results.quality === item.quality;
-                            return (
-                              <tr 
-                                key={idx} 
-                                className={cn(
-                                  "transition-all duration-300 border-b border-slate-100",
-                                  isActive ? "bg-slate-100" : "hover:bg-slate-50 cursor-default"
-                                )}
-                              >
-                                <td className={cn("p-4 text-[14px] font-mono font-bold", isActive && "text-blue-700")}>
-                                  {item.velocity}
-                                </td>
-                                <td className={cn("p-4 text-[14px] font-black uppercase italic", isActive && "text-blue-700")}>
-                                  {item.quality}
-                                </td>
-                                <td className={cn("p-4 text-[14px] uppercase tracking-tighter text-[11px] font-black", isActive ? "text-blue-700" : "text-slate-200")}>
-                                  {isActive ? (
-                                    <span className="flex items-center gap-2">
-                                      <motion.span 
-                                        animate={{ opacity: [1, 0.4, 1] }} 
-                                        transition={{ duration: 1, repeat: Infinity }}
-                                        className="w-1.5 h-1.5 bg-blue-700 rounded-full" 
-                                      />
-                                      TARGET REACHED
-                                    </span>
-                                  ) : idx === 0 ? "VERIFIED" : "--"}
-                                </td>
-                              </tr>
-                            );
-                          })}
+                        <tbody className="divide-y divide-slate-100 text-[12px]">
+                          {batchResults.map((r) => (
+                            <tr key={r.id} className="hover:bg-blue-50/50 transition-colors">
+                              <td className="p-4 font-mono font-bold text-slate-400">#{r.id.slice(-6)}</td>
+                              <td className="p-4 uppercase font-black text-[9px] tracking-widest text-slate-500">{r.method}</td>
+                              <td className="p-4 font-mono text-slate-500">L:{r.pathLength} / T:{r.pulseTime}</td>
+                              <td className="p-4 font-black italic text-blue-600">{r.results!.correctedVelocity.toFixed(3)} km/s</td>
+                              <td className="p-4">
+                                <span className={cn(
+                                  "text-[9px] font-black uppercase px-2 py-0.5 text-white",
+                                  getQualityBg(r.results!.quality)
+                                )}>{r.results!.quality}</span>
+                              </td>
+                              <td className="p-4">
+                                <button 
+                                  onClick={() => setBatchData(batchData.filter(b => b.id !== r.id))}
+                                  className="text-slate-300 hover:text-red-500"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                          {batchData.length === 0 && (
+                            <tr>
+                              <td colSpan={6} className="p-20 text-center opacity-20">
+                                <div className="flex flex-col items-center gap-4">
+                                  <Calculator size={60} />
+                                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Matrix is Clear</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
               <div className="flex flex-wrap gap-4 pt-4 shrink-0">
+                <button 
+                  onClick={sendEmailReport}
+                  disabled={isSendingEmail}
+                  className="group bg-slate-900 text-white px-8 py-4 rounded-none font-black text-[14px] uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 border-2 border-dash-line disabled:opacity-50"
+                >
+                  <Play size={18} className={isSendingEmail ? 'animate-pulse' : ''} />
+                  {isSendingEmail ? 'Dispatching Email...' : 'Email Analysis Report'}
+                </button>
                 <button 
                   onClick={() => {
                     generatePDF();

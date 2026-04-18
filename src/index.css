@@ -4,14 +4,14 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-dash-bg: #1e293b;
-  --color-dash-line: #0f172a;
-  --color-dash-accent: #3b82f6;
-  --color-dash-ink: #1e293b;
-  --color-dash-success: #22c55e;
+  --color-dash-bg: #94a3b8;
+  --color-dash-line: #334155;
+  --color-dash-accent: #0284c7;
+  --color-dash-ink: #0f172a;
+  --color-dash-success: #059669;
   --color-dash-error: #ef4444;
   --color-dash-warning: #f59e0b;
-  --color-dash-info: #0ea5e9;
+  --color-dash-info: #3b82f6;
 }
 
 body {
@@ -21,31 +21,22 @@ body {
 .concrete-layer {
   @apply fixed inset-0 z-0 opacity-80;
   background-color: #ffffff;
-  background-image: 
-    /* Dense dot grid */
-    radial-gradient(#cbd5e1 0.8px, transparent 0.8px),
-    /* Sparse geometric symbols (triangles and slashes) - Increased visibility */
-    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2364748b' stroke-width='1.5' opacity='1'%3E%3Cpath d='M10 10 L20 10 L15 18 Z'/%3E%3Cpath d='M50 40 L60 55'/%3E%3Cpath d='M90 20 L100 20 L95 28 Z'/%3E%3Cpath d='M30 80 L45 95'/%3E%3Cpath d='M80 85 L90 85 L85 93 Z'/%3E%3Cpath d='M10 100 L25 115'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 8px 8px, 120px 120px;
 }
 
 .blueprint-grid {
   @apply fixed inset-0 opacity-[0.03] pointer-events-none;
-  background-image: linear-gradient(var(--color-dash-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-dash-line) 1px, transparent 1px);
-  background-size: 40px 40px;
 }
 
 .metric-card {
-  @apply bg-white border-2 border-dash-line p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] flex flex-col gap-1;
+  @apply bg-white border border-slate-200 p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-1 transition-all duration-300 hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] hover:-translate-y-1 hover:scale-[1.01];
 }
 
 .input-label {
-  @apply text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none;
+  @apply text-[10px] font-black text-slate-800 uppercase tracking-widest leading-none;
 }
 
 .dash-input {
-  @apply w-full bg-slate-50 border-2 border-dash-line p-2 font-mono font-bold text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-dash-accent/50 transition-all rounded-none;
+  @apply w-full bg-white border border-slate-300 p-2 font-mono font-bold text-sm focus:outline-none focus:border-blue-500 transition-all rounded-none;
 }
 
 .digital-flicker {
