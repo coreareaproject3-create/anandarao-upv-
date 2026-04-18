@@ -13,34 +13,46 @@ async function startServer() {
 
   app.use(express.json());
 
+  const getTransporter = () => {
+    const email = process.env.EMAIL || process.env.GMAIL_USER;
+    const password = process.env.PASSWORD || process.env.GMAIL_APP_PASSWORD;
+    const host = process.env.SMTP_SERVER || 'smtp.gmail.com';
+    const port = parseInt(process.env.SMTP_PORT || '587');
+
+    if (!email || !password) return null;
+
+    return nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: {
+        user: email,
+        pass: password,
+      },
+    });
+  };
+
   // API Routes
   app.post("/api/welcome-email", async (req, res) => {
     const { name, email } = req.body;
     console.log(`[SERVER] Sending welcome email to ${name} at ${email}`);
     
-    const gmailUser = process.env.GMAIL_USER;
-    const gmailPass = process.env.GMAIL_APP_PASSWORD;
+    const transporter = getTransporter();
 
-    if (!gmailUser || !gmailPass) {
-      console.warn("[SERVER] Gmail credentials not set. Email not sent.");
+    if (!transporter) {
+      console.warn("[SERVER] SMTP credentials not set. Email not sent.");
       return res.json({ 
         success: true, 
         message: "Auth successful", 
-        warning: "Laboratory guidelines were logged to console (GMAIL_USER or GMAIL_APP_PASSWORD not set in environment)." 
+        warning: "Laboratory guidelines were logged to console (EMAIL or PASSWORD not set in environment)." 
       });
     }
 
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: gmailUser,
-          pass: gmailPass,
-        },
-      });
+    const fromEmail = process.env.EMAIL || process.env.GMAIL_USER;
 
+    try {
       const mailOptions = {
-        from: `"UPV Analysis Lab" <${gmailUser}>`,
+        from: `"UPV Analysis Lab" <${fromEmail}>`,
         to: email,
         subject: 'Welcome to UPV Analysis Lab - Operating Guidelines',
         html: `
@@ -105,19 +117,15 @@ async function startServer() {
     const { name, email, results, method, parameters } = req.body;
     console.log(`[SERVER] Sending report to ${email}`);
 
-    const gmailUser = process.env.GMAIL_USER;
-    const gmailPass = process.env.GMAIL_APP_PASSWORD;
+    const transporter = getTransporter();
 
-    if (!gmailUser || !gmailPass) {
-      return res.status(400).json({ success: false, error: "Gmail credits not configured in laboratory settings." });
+    if (!transporter) {
+      return res.status(400).json({ success: false, error: "SMTP credentials not configured in laboratory settings." });
     }
 
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: gmailUser, pass: gmailPass },
-      });
+    const fromEmail = process.env.EMAIL || process.env.GMAIL_USER;
 
+    try {
       const isBatch = Array.isArray(results);
       
       let htmlContent = `
@@ -199,7 +207,7 @@ async function startServer() {
       `;
 
       await transporter.sendMail({
-        from: `"UPV Lab Report" <${gmailUser}>`,
+        from: `"UPV Lab Report" <${fromEmail}>`,
         to: email,
         subject: `[REPORT] UPV Lab Analysis - ${new Date().toLocaleDateString()}`,
         html: htmlContent
