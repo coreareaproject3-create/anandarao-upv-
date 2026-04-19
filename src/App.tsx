@@ -103,7 +103,7 @@ const VisualGuide = ({ method }: { method: CorrectionMethod }) => {
                 {/* Dimensions */}
                 <path d="M 40 15 L 160 15" stroke="#3b82f6" strokeWidth="0.5" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
                 <text x="100" y="10" fill="#3b82f6" fontSize="8" textAnchor="middle" fontWeight="bold">Path Length (L)</text>
-                <text x="100" y="50" fill="#ffffff80" fontSize="7" textAnchor="middle">Bar Diameter (Ls)</text>
+                <text x="100" y="50" fill="#ffffff80" fontSize="7" textAnchor="middle">Length of Steel (Ls)</text>
               </g>
             )}
 
@@ -355,7 +355,6 @@ export default function App() {
   const [barDiameter, setBarDiameter] = useState<number>(12);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   // Batch Mode States
@@ -396,8 +395,9 @@ export default function App() {
     let influencePresent: boolean | undefined;
 
     if (m === 'perpendicular') {
-      kFactor = 0.9;
-      correctedV = kFactor * measuredV;
+      gamma = 4.606 / VS;
+      kFactor = 1 - (Ls / L) * (1 - gamma);
+      correctedV = measuredV * kFactor * 0.9;
     } else if (m === 'parallel') {
       const numerator = 2 * a * VS;
       const termInner = (T * VS) - L;
@@ -586,7 +586,10 @@ export default function App() {
       yPos += 7;
       doc.text(`Correction Type: ${method.charAt(0).toUpperCase() + method.slice(1)}`, 25, yPos);
       
-      if (method === 'parallel') {
+      if (method === 'perpendicular') {
+        yPos += 7;
+        doc.text(`Length of Steel (Ls): ${barDiameter} mm`, 25, yPos);
+      } else if (method === 'parallel') {
         yPos += 7;
         doc.text(`Offset Distance (a): ${offsetDistance} mm`, 25, yPos);
       }
@@ -664,35 +667,6 @@ export default function App() {
     doc.text('This is a computer-generated laboratory report for internal research and educational purposes only.', 105, 285, { align: 'center' });
 
     doc.save(`WAVE_SHIELD_Report_${new Date().getTime()}.pdf`);
-  };
-
-  const sendEmailReport = async () => {
-    if (!user) return;
-    setIsSendingEmail(true);
-    try {
-      const response = await fetch('/api/send-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: user.name,
-          email: user.email,
-          results: isBatchMode ? batchResults : results,
-          method,
-          parameters: isBatchMode ? null : { pathLength, pulseTime, offsetDistance, barDiameter }
-        }),
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        showToast("Laboratory report sent to your inbox", "success");
-      } else {
-        showToast(data.error || data.warning || "Failed to send report", "error");
-      }
-    } catch (error) {
-      console.error("Email dispatch failed:", error);
-      showToast("Mailing service unavailable", "error");
-    } finally {
-      setIsSendingEmail(false);
-    }
   };
 
   const getQualityBg = (quality: string) => {
@@ -796,7 +770,7 @@ export default function App() {
             className="fixed inset-0 z-[100] flex items-center justify-center p-6 overflow-y-auto"
           >
             <UPVWaveAnimation>
-              <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line pt-8 px-8 pb-16 w-full max-w-md shadow-[24px_24px_0px_0px_rgba(0,0,0,0.4)] login-concrete-cube group/cube">
+              <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line pt-8 px-8 pb-16 w-full max-w-md shadow-2xl login-concrete-cube group/cube">
                 <ConcreteHatch />
                 
                 {/* Beam Reinforcement Cross Section (Decorative) */}
@@ -835,34 +809,10 @@ export default function App() {
                   
                   <div className="mt-4 flex flex-col items-center gap-2">
                     <form 
-                      onSubmit={async (e) => {
+                      onSubmit={(e) => {
                         e.preventDefault();
                         if (tempName && tempEmail) {
-                          setIsLoggingIn(true);
                           setUser({ name: tempName, email: tempEmail });
-                          // Send welcome email via server
-                          try {
-                            const response = await fetch('/api/welcome-email', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ name: tempName, email: tempEmail }),
-                            });
-                            const data = await response.json();
-                            if (response.ok && data.success) {
-                              if (data.warning) {
-                                showToast(data.warning, "warning");
-                              } else {
-                                showToast("Technical Guidelines transmitted to your email", "success");
-                              }
-                            } else {
-                              showToast(data.detail || data.message || data.error || "Email delivery failed", "error");
-                            }
-                          } catch (error) {
-                            console.error("Failed to trigger welcome email:", error);
-                            showToast("Could not connect to email service", "error");
-                          } finally {
-                            setIsLoggingIn(false);
-                          }
                         }
                       }}
                       className="space-y-6 w-full"
@@ -895,7 +845,7 @@ export default function App() {
                       <button
                         type="submit"
                         disabled={isLoggingIn}
-                        className="w-full py-4 bg-dash-accent text-white font-black uppercase tracking-widest text-xs border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)]"
+                        className="w-full max-w-[260px] mx-auto py-3 bg-dash-accent text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
                       >
                         {isLoggingIn ? "Authenticating..." : (
                           <>
@@ -1060,6 +1010,20 @@ export default function App() {
                         </div>
                       </div>
                     )}
+                    {method === 'perpendicular' && (
+                      <div className="space-y-2">
+                        <label className="input-label">Length of Steel (Ls)</label>
+                        <div className="relative">
+                          <input 
+                            type="number" 
+                            value={barDiameter} 
+                            onChange={(e) => setBarDiameter(Number(e.target.value))}
+                            className="dash-input pr-12"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-slate-400">mm</span>
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
@@ -1100,7 +1064,7 @@ export default function App() {
               {/* Header Section */}
               <div className="relative z-10 shrink-0">
                 <div className="inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-2 uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] border border-blue-400">
-                  {greeting}, {user.name}.
+                  {greeting}, {user.name} // {user.email}
                 </div>
                 
                 <div className="flex justify-between items-start">
@@ -1116,13 +1080,6 @@ export default function App() {
                   </div>
 
                   <div className="flex gap-4">
-                    <button 
-                      onClick={sendEmailReport}
-                      disabled={isSendingEmail}
-                      className="px-6 py-2 border-2 border-blue-400 bg-blue-600 text-white font-black text-[11px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg active:translate-y-1 block disabled:opacity-50"
-                    >
-                      {isSendingEmail ? 'Dispatching...' : 'Email Report'}
-                    </button>
                     <button 
                       onClick={() => setUser(null)}
                       className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white flex items-center gap-2 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
@@ -1162,7 +1119,6 @@ export default function App() {
                       </div>
                       <span className="input-label flex justify-between items-center">
                         Factor (K)
-                        <span className="text-[8px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Ref: IS-516</span>
                       </span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-[44px] font-black italic text-slate-800 tracking-tighter">{results.kFactor?.toFixed(3) || '1.000'}</span>
@@ -1396,19 +1352,11 @@ export default function App() {
 
               <div className="flex flex-wrap gap-4 pt-4 shrink-0">
                 <button 
-                  onClick={sendEmailReport}
-                  disabled={isSendingEmail}
-                  className="group bg-slate-900 text-white px-8 py-4 rounded-none font-black text-[14px] uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 border-2 border-dash-line disabled:opacity-50"
-                >
-                  <Play size={18} className={isSendingEmail ? 'animate-pulse' : ''} />
-                  {isSendingEmail ? 'Dispatching Email...' : 'Email Analysis Report'}
-                </button>
-                <button 
                   onClick={() => {
                     generatePDF();
                     showToast("Laboratory report generated", "success");
                   }}
-                  className="group bg-blue-700 text-white px-8 py-4 rounded-none font-black text-[14px] uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 border-2 border-dash-line"
+                  className="group bg-blue-700 text-white px-8 py-4 rounded-none font-black text-[14px] uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 border-2 border-dash-line w-full md:w-auto"
                 >
                   <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
                   {isBatchMode ? 'Download Batch Report' : 'Download PDF Report'}

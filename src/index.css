@@ -67,8 +67,7 @@ body {
 }
 
 .login-concrete-cube {
-  transform: rotateX(2deg) rotateY(-2deg);
-  box-shadow: 20px 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0px 20px 50px rgba(0,0,0,0.3);
 }
 
 .concrete-texture {
