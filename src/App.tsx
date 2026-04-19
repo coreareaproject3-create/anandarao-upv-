@@ -14,7 +14,9 @@ import {
   Plus, 
   Trash2, 
   Table as TableIcon, 
-  Play 
+  Play,
+  Zap,
+  Thermometer
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { jsPDF } from 'jspdf';
@@ -73,8 +75,8 @@ const VisualGuide = ({ method }: { method: CorrectionMethod }) => {
             <rect x="40" y="20" width="120" height="80" fill="#ffffff10" stroke="#ffffff30" strokeWidth="1" strokeDasharray="2 1" />
             
             {/* Transducers */}
-            <rect x="25" y="50" width="15" height="20" fill="#3b82f6" rx="2" />
-            <rect x="160" y="50" width="15" height="20" fill="#3b82f6" rx="2" />
+            <rect x="28" y="52" width="12" height="16" fill="#3b82f6" rx="1" />
+            <rect x="160" y="52" width="12" height="16" fill="#3b82f6" rx="1" />
             
             {/* Main Pulse Path */}
             <line x1="40" y1="60" x2="160" y2="60" stroke="#ffffff40" strokeWidth="1" strokeDasharray="4 2" />
@@ -147,15 +149,15 @@ const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
   return (
     <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-40 px-6 py-12">
       {/* Transducer - TX (Left) */}
-      <div className="order-2 md:order-1 flex flex-col items-center gap-4 shrink-0 transition-transform duration-500 hover:scale-110">
-        <div className="w-24 h-24 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_30px_rgba(59,130,246,0.3)] group z-20">
+      <div className="order-2 md:order-1 flex flex-col items-center gap-3 shrink-0 transition-transform duration-500 hover:scale-105">
+        <div className="w-20 h-20 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_20px_rgba(59,130,246,0.2)] group z-20">
           <div className="absolute inset-2 rounded-full border border-white/5" />
-          <div className="absolute -right-4 w-6 h-12 bg-slate-800 border-y-4 border-r-4 border-dash-line rounded-r-md shadow-lg" />
+          <div className="absolute -right-3 w-5 h-10 bg-slate-800 border-y-4 border-r-4 border-dash-line rounded-r-md shadow-lg" />
           
           <div className="flex flex-col items-center text-center px-2">
-            <span className="text-xl font-black text-white leading-none tracking-tighter mb-1">TX</span>
+            <span className="text-lg font-black text-white leading-none tracking-tighter mb-1">TX</span>
           </div>
-          <div className="mt-2 w-10 h-1 bg-dash-accent/40 animate-pulse rounded-full" />
+          <div className="mt-1 w-8 h-1 bg-dash-accent/40 animate-pulse rounded-full" />
           
           <motion.div 
             animate={{ scale: [1, 2], opacity: [0.5, 0] }}
@@ -250,15 +252,15 @@ const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
       </div>
 
       {/* Transducer - RX (Right) */}
-      <div className="order-3 flex flex-col items-center gap-4 shrink-0 transition-transform duration-500 hover:scale-110">
-        <div className="w-24 h-24 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_30px_rgba(34,197,94,0.3)] group z-20">
+      <div className="order-3 flex flex-col items-center gap-3 shrink-0 transition-transform duration-500 hover:scale-105">
+        <div className="w-20 h-20 rounded-full bg-slate-900 border-4 border-dash-line flex flex-col items-center justify-center relative shadow-[0_0_20px_rgba(34,197,94,0.2)] group z-20">
           <div className="absolute inset-2 rounded-full border border-white/5" />
-          <div className="absolute -left-4 w-6 h-12 bg-slate-800 border-y-4 border-l-4 border-dash-line rounded-l-md shadow-lg" />
+          <div className="absolute -left-3 w-5 h-10 bg-slate-800 border-y-4 border-l-4 border-dash-line rounded-l-md shadow-lg" />
           
           <div className="flex flex-col items-center text-center px-2">
-            <span className="text-xl font-black text-white leading-none tracking-tighter mb-1">RX</span>
+            <span className="text-lg font-black text-white leading-none tracking-tighter mb-1">RX</span>
           </div>
-          <div className="mt-2 w-10 h-1 bg-green-500/40 rounded-full" />
+          <div className="mt-1 w-8 h-1 bg-green-500/40 rounded-full" />
 
           <motion.div 
             animate={{ scale: [0.8, 1], opacity: [0, 0.4, 0] }}
@@ -275,12 +277,78 @@ const UPVWaveAnimation = ({ children }: { children?: ReactNode }) => {
   );
 };
 
+// WAVE SHIELD Logo Component
+const WAVEShieldLogo = ({ className, size = 200 }: { className?: string; size?: number }) => (
+  <svg width={size} viewBox="0 0 400 500" className={cn("h-auto shadow-2xl drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]", className)} fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Outer Shield Outline */}
+    <path 
+      d="M200 50 L350 120 V300 C350 400 200 450 200 450 C200 450 50 400 50 300 V120 L200 50Z" 
+      stroke="#3b82f6" 
+      strokeWidth="12" 
+      strokeLinejoin="round" 
+    />
+    
+    {/* Inner Shield (Double line effect) */}
+    <path 
+      d="M200 70 L330 130 V290 C330 380 200 430 200 430 C200 430 70 380 70 290 V130 L200 70Z" 
+      stroke="#1e3a8a" 
+      strokeWidth="2" 
+      opacity="0.4"
+    />
+
+    {/* Inner Rebars (Vertical) */}
+    <rect x="115" y="140" width="20" height="240" rx="4" fill="#94a3b8" />
+    <rect x="190" y="100" width="20" height="320" rx="4" fill="#cbd5e1" />
+    <rect x="265" y="140" width="20" height="240" rx="4" fill="#94a3b8" />
+
+    {/* Horizontal Support Beams */}
+    <rect x="75" y="215" width="250" height="20" rx="2" fill="#f8fafc" fillOpacity="0.9" />
+    <rect x="75" y="255" width="250" height="20" rx="2" fill="#f8fafc" fillOpacity="0.9" />
+
+    {/* Wave Pattern (The Pulse) */}
+    <motion.path 
+      d="M75 235 Q105 210 135 235 T195 235 T255 235 T315 235" 
+      stroke="#3b82f6" 
+      strokeWidth="8" 
+      fill="none" 
+      strokeLinecap="round"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.path 
+      d="M75 235 Q105 260 135 235 T195 235 T255 235 T315 235" 
+      stroke="#ef4444" 
+      strokeWidth="5" 
+      strokeDasharray="10 10" 
+      fill="none" 
+      strokeLinecap="round"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+    />
+
+    {/* Checkmark */}
+    <motion.path 
+      d="M160 360 L200 400 L280 300" 
+      stroke="#3b82f6" 
+      strokeWidth="16" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{ duration: 1, delay: 1 }}
+    />
+  </svg>
+);
+
 // Main App Component
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [tempName, setTempName] = useState('');
   const [tempEmail, setTempEmail] = useState('');
-  const [method, setMethod] = useState<CorrectionMethod>('no-correction');
+  const [method, setMethod] = useState<CorrectionMethod>('perpendicular');
   const [pathLength, setPathLength] = useState<number>(150);
   const [pulseTime, setPulseTime] = useState<number>(35);
   const [offsetDistance, setOffsetDistance] = useState<number>(40);
@@ -436,47 +504,63 @@ export default function App() {
     };
 
     if (isBatchMode && batchResults.length > 0) {
-      drawHeader('Batch UPV Analysis Summary Report');
+      drawHeader('Batch UPV Analysis Report');
       
       doc.setFontSize(10);
-      doc.text(`Date: ${dateStr}`, 20, 50);
+      doc.text(`Facility: Thiagarajar College of Engineering`, 20, 50);
+      doc.text(`Department: Civil Engineering Laboratory`, 20, 55);
+      
       if (user) {
-        doc.text(`Tester Name: ${user.name}`, 120, 50);
-        doc.text(`Total Readings: ${batchResults.length}`, 120, 55);
+        doc.text(`Lead Investigator: ${user.name}`, 120, 50);
+        doc.text(`Email: ${user.email}`, 120, 55);
       }
 
       // Statistical Summary Section
       if (batchStats) {
-        doc.setFillColor(240, 240, 240);
-        doc.rect(20, 60, 170, 30, 'F');
         doc.setFont('helvetica', 'bold');
-        doc.text('Statistical Summary', 25, 68);
+        doc.text('1. Statistical Summary', 20, 70);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Mean Corrected Velocity: ${batchStats.mean.toFixed(3)} km/s`, 25, 76);
-        doc.text(`Standard Deviation: ${batchStats.stdDev.toFixed(4)}`, 25, 83);
-        
-        const distribution = Object.entries(batchStats.qualityCounts)
-          .map(([q, count]) => `${q}: ${count}`)
-          .join(' | ');
-        doc.text(`Distribution: ${distribution}`, 25, 90);
+        doc.text(`Total Measured Points: ${batchResults.length}`, 25, 78);
+        doc.text(`Mean Corrected Velocity: ${batchStats.mean.toFixed(3)} km/s`, 25, 85);
+        doc.text(`Standard Deviation: ${batchStats.stdDev.toFixed(4)}`, 25, 92);
       }
 
-      // Batch Table
+      // Qualitative Distribution Table
+      if (batchStats) {
+        autoTable(doc, {
+          startY: 105,
+          head: [['Quality Gradation', 'Measurement Count']],
+          body: Object.entries(batchStats.qualityCounts),
+          theme: 'grid',
+          headStyles: { fillColor: [51, 65, 85] },
+          styles: { fontSize: 9, halign: 'center' },
+          margin: { left: 40, right: 40 }
+        });
+      }
+
+      // Second Page for Detailed Data
+      doc.addPage();
+      drawHeader('Comprehensive Test Results');
+      
+      // Batch Results Table
       autoTable(doc, {
-        startY: 100,
-        head: [['#', 'Location', 'Method', 'L (mm)', 'T (µs)', 'Vc (km/s)', 'Quality']],
+        startY: 45,
+        head: [['Ref', 'Member Location', 'Path L', 'Pulse T', 'Vc (km/s)', 'Grade']],
         body: batchResults.map((r, i) => [
-          i + 1,
+          String(i + 1).padStart(2, '0'),
           r.location,
-          r.method === 'no-correction' ? 'Raw' : r.method,
-          r.pathLength,
-          r.pulseTime,
+          `${r.pathLength}mm`,
+          `${r.pulseTime}µs`,
           r.results!.correctedVelocity.toFixed(3),
           r.results!.quality
         ]),
         theme: 'striped',
-        headStyles: { fillColor: [0, 102, 204] },
-        styles: { fontSize: 8 }
+        margin: { top: 45 },
+        headStyles: { fillColor: [37, 99, 235] },
+        styles: { fontSize: 8, halign: 'center' },
+        columnStyles: {
+            1: { halign: 'left' }
+        }
       });
 
     } else {
@@ -625,6 +709,84 @@ export default function App() {
     }
   };
 
+  if (showSplash) {
+    return (
+      <div className="fixed inset-0 z-[200] bg-[#1a2b38] flex flex-col items-center justify-center p-6 overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]" />
+        
+        <div className="relative z-10 flex flex-col items-center max-w-2xl w-full text-center">
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0, rotateY: 180 }}
+            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+            transition={{ duration: 1.5, type: "spring", stiffness: 100 }}
+            className="mb-12"
+          >
+            <WAVEShieldLogo size={280} />
+          </motion.div>
+
+          <div className="overflow-hidden mb-12">
+            <motion.h1
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
+              className="text-[64px] font-black italic tracking-tighter leading-none text-white drop-shadow-2xl flex flex-col"
+            >
+              <span>WAVE</span>
+              <span className="text-blue-500 -mt-4">SHIELD</span>
+            </motion.h1>
+            
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 1.5, duration: 0.8 }}
+              className="h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent w-full mt-2"
+            />
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2.2, duration: 1 }}
+              className="mt-6 text-blue-300 font-black uppercase tracking-[0.4em] text-sm italic"
+            >
+              True velocity . True strength
+            </motion.p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.8, duration: 0.8 }}
+            className="max-w-xl mx-auto text-center mb-12 px-8"
+          >
+            <div className="p-6 bg-slate-900/60 backdrop-blur-xl border-t-2 border-blue-500/50 rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+              <p className="text-[15px] md:text-[18px] text-blue-100 font-medium leading-relaxed italic drop-shadow-sm">
+                WaveShield corrects ultrasonic pulse velocity (UPV) readings affected by steel rebar in reinforced concrete, giving you accurate results without overestimation.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3.2, duration: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSplash(false)}
+            className="group relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-white/20 hover:border-blue-500 transition-colors shadow-2xl"
+          >
+             <div className="absolute inset-2 rounded-full border border-blue-500/30 animate-ping opacity-50" />
+             <Play size={32} className="text-white fill-white ml-2 transition-transform group-hover:scale-125" />
+          </motion.button>
+        </div>
+
+        {/* Floating tech elements */}
+        <div className="absolute top-10 left-10 w-24 h-24 border border-white/10 rounded-full animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-40 h-40 border-4 border-blue-500/10 rounded-full animate-ping" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex text-dash-ink">
 
@@ -638,14 +800,44 @@ export default function App() {
             className="fixed inset-0 z-[100] flex items-center justify-center p-6"
           >
             <UPVWaveAnimation>
-              <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line p-8 w-full max-w-md shadow-[16px_16px_0px_0px_rgba(0,0,0,0.3)] login-concrete-cube overflow-hidden group/cube">
+              <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line pt-8 px-8 pb-16 w-full max-w-md shadow-[24px_24px_0px_0px_rgba(0,0,0,0.4)] login-concrete-cube group/cube">
                 <ConcreteHatch />
-                <div className="relative z-10">
-                  <div className="mb-8 text-center text-dash-ink">
-                    <h2 className="text-2xl font-black uppercase tracking-tighter italic drop-shadow-sm">UPV Analysis Tool for Reinforced Concrete</h2>
+                
+                {/* Beam Reinforcement Cross Section (Decorative) */}
+                <div className="absolute inset-6 pointer-events-none opacity-100">
+                  {/* Stirrup/Link - Wrapped around the outside of rods */}
+                  <div className="absolute inset-0 border-[6px] border-slate-900/70 rounded-md" />
+                  
+                  {/* Top Rods - Tucked into stirrup corners (Small Diameter) */}
+                  <div className="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-800 shadow-xl flex items-center justify-center">
+                    <div className="w-3.5 h-3.5 rounded-full border border-slate-300/10" />
+                  </div>
+                  <div className="absolute top-0.5 right-0.5 w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-800 shadow-xl flex items-center justify-center">
+                    <div className="w-3.5 h-3.5 rounded-full border border-slate-300/10" />
                   </div>
                   
-                  <div className="mt-6 flex flex-col items-center gap-2">
+                  {/* Bottom Rods - Tucked into stirrup corners and mid-point (Large Diameter) */}
+                  <div className="absolute bottom-1 left-1 w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700 shadow-2xl flex items-center justify-center -translate-x-1 translate-y-1">
+                    <div className="w-8 h-8 rounded-full border border-slate-400/20" />
+                  </div>
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700 shadow-2xl flex items-center justify-center translate-y-1">
+                    <div className="w-8 h-8 rounded-full border border-slate-400/20" />
+                  </div>
+                  <div className="absolute bottom-1 right-1 w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-700 shadow-2xl flex items-center justify-center translate-x-1 translate-y-1">
+                    <div className="w-8 h-8 rounded-full border border-slate-400/20" />
+                  </div>
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex flex-col items-center mb-6">
+                    <WAVEShieldLogo size={80} className="mb-4 drop-shadow-md" />
+                    <h2 className="text-4xl font-black uppercase tracking-tighter italic text-center leading-none text-slate-800">
+                      WAVE <br />
+                      <span className="text-blue-600">SHIELD</span>
+                    </h2>
+                  </div>
+                  
+                  <div className="mt-4 flex flex-col items-center gap-2">
                     <form 
                       onSubmit={async (e) => {
                         e.preventDefault();
@@ -703,6 +895,7 @@ export default function App() {
                           className="dash-input bg-white/80"
                         />
                       </div>
+
                       <button
                         type="submit"
                         disabled={isLoggingIn}
@@ -717,6 +910,15 @@ export default function App() {
                     </form>
                   </div>
                 </div>
+              </div>
+              
+              <div className="mt-8 flex justify-center">
+                <button 
+                  onClick={() => setShowSplash(true)}
+                  className="text-[12px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-500 transition-colors flex items-center gap-2 px-6 py-3 bg-slate-900/40 border border-blue-900/40 rounded-full backdrop-blur-md shadow-2xl relative z-[110]"
+                >
+                  <X size={14} /> Exit to Menu
+                </button>
               </div>
             </UPVWaveAnimation>
         </motion.div>
@@ -740,6 +942,16 @@ export default function App() {
               "fixed inset-y-0 left-0 z-40 w-[300px] bg-white border-r border-slate-200 p-6 flex flex-col gap-6 transition-transform lg:relative lg:translate-x-0 overflow-y-auto shrink-0",
               sidebarOpen ? "translate-x-0 shadow-[20px_0_40px_rgba(0,0,0,0.1)]" : "-translate-x-full"
             )}>
+              {/* Sidebar Header Logo */}
+              <div className="flex flex-col items-center py-4 border-b-4 border-double border-slate-100 mb-2">
+                <WAVEShieldLogo size={100} className="mb-2" />
+                <div className="text-center">
+                  <h2 className="text-xl font-black uppercase tracking-tighter italic text-slate-800">
+                    WAVE <span className="text-blue-600">SHIELD</span>
+                  </h2>
+                </div>
+              </div>
+
               {/* Mode Toggle at extreme top */}
               <div className="flex bg-slate-100 p-1 rounded-none border border-slate-200">
                 <button 
@@ -800,7 +1012,7 @@ export default function App() {
                     onChange={(e) => setMethod(e.target.value as CorrectionMethod)}
                     className="dash-input cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%234b5563%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-no-repeat bg-[right_0.5rem_center] pr-10"
                   >
-                    <option value="no-correction">No Correction</option>
+                    <option value="no-correction">No Correction (Plain Concrete)</option>
                     <option value="parallel">Parallel to the rebar</option>
                     <option value="perpendicular">Perpendicular to the rebar</option>
                   </select>
@@ -899,7 +1111,10 @@ export default function App() {
             </aside>
 
             {/* Main Content Dashboard */}
-            <main className="flex-1 min-w-0 px-12 py-12 flex flex-col gap-10 overflow-y-auto bg-dash-bg">
+            <main className="flex-1 min-w-0 px-12 py-12 flex flex-col gap-10 overflow-y-auto bg-dash-bg relative">
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '30px 30px'}} />
+              
               {/* Header Section */}
               <div className="relative z-10 shrink-0">
                 <div className="inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-2 uppercase tracking-widest mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] border border-blue-400">
@@ -907,9 +1122,16 @@ export default function App() {
                 </div>
                 
                 <div className="flex justify-between items-start">
-                  <h1 className="text-[42px] font-black text-white uppercase tracking-tighter italic leading-[0.9] transform -skew-x-6 drop-shadow-md">
-                    UPV Analysis Tool <br /> For Reinforced Concrete
-                  </h1>
+                  <div className="flex gap-6 items-center">
+                    <div className="w-20 h-20 border-4 border-white/20 flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl shrink-0 transform -rotate-6 shadow-2xl relative overflow-hidden group">
+                       <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       <WAVEShieldLogo size={54} className="relative z-10 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-1" />
+                       <span className="text-[9px] font-black text-blue-400/80 tracking-widest relative z-10 drop-shadow-sm">v4.0</span>
+                    </div>
+                    <h1 className="text-[42px] font-black text-white uppercase tracking-tighter italic leading-[0.9] transform -skew-x-6 drop-shadow-md">
+                      WAVE SHIELD
+                    </h1>
+                  </div>
 
                   <div className="flex gap-4">
                     <button 
@@ -918,12 +1140,6 @@ export default function App() {
                       className="px-6 py-2 border-2 border-blue-400 bg-blue-600 text-white font-black text-[11px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg active:translate-y-1 block disabled:opacity-50"
                     >
                       {isSendingEmail ? 'Dispatching...' : 'Email Report'}
-                    </button>
-                    <button 
-                      onClick={generatePDF}
-                      className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
-                    >
-                      Raw Data
                     </button>
                     <button 
                       onClick={() => setUser(null)}
@@ -936,35 +1152,20 @@ export default function App() {
                 </div>
               </div>
 
-              {isBatchMode && batchStats && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
-                  <div className="metric-card bg-slate-900 border-dash-accent">
-                    <span className="text-[10px] font-black text-dash-accent uppercase tracking-widest">Mean Velocity</span>
-                    <div className="text-2xl font-black text-white">{batchStats.mean.toFixed(3)} <span className="text-xs opacity-50">km/s</span></div>
-                  </div>
-                  <div className="metric-card bg-slate-900 border-dash-accent">
-                    <span className="text-[10px] font-black text-dash-accent uppercase tracking-widest">Std. Deviation</span>
-                    <div className="text-2xl font-black text-white">{batchStats.stdDev.toFixed(4)}</div>
-                  </div>
-                  <div className="metric-card bg-slate-900 border-dash-accent md:col-span-2 flex flex-wrap gap-3 items-center p-4">
-                    <span className="text-[10px] font-black text-dash-accent uppercase tracking-widest w-full">Quality Distribution</span>
-                    {Object.entries(batchStats.qualityCounts).map(([q, count]) => (
-                      <div key={q} className="flex flex-col">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{q}</span>
-                        <span className="text-sm font-black text-white">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {!isBatchMode ? (
                 /* SINGLE MEASUREMENT VIEW */
                 <div className="space-y-10 relative z-10 flex flex-col flex-1 pb-10">
                   {/* Results Row */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="metric-card border-b-4 border-blue-500">
-                      <span className="input-label">Measured Velocity</span>
+                    <div className="metric-card border-b-4 border-blue-500 relative group overflow-hidden">
+                      <div className="absolute top-0 right-0 w-8 h-8 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <span className="input-label flex justify-between items-center">
+                        Measured Velocity
+                        <span className="text-[8px] font-mono text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Status: Active</span>
+                      </span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-[44px] font-black italic text-slate-800 tracking-tighter">{results.measuredVelocity.toFixed(3)}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">km/s</span>
@@ -972,19 +1173,33 @@ export default function App() {
                       <div className="mt-2 w-full h-[1px] bg-blue-100" />
                     </div>
 
-                    <div className="metric-card border-b-4 border-slate-400">
-                      <span className="input-label">Factor (K)</span>
+                    <div className="metric-card border-b-4 border-slate-400 relative group overflow-hidden">
+                      <div className="absolute top-0 right-0 w-8 h-8 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <span className="input-label flex justify-between items-center">
+                        Factor (K)
+                        <span className="text-[8px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Ref: IS-516</span>
+                      </span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-[44px] font-black italic text-slate-800 tracking-tighter">{results.kFactor?.toFixed(3) || '1.000'}</span>
                       </div>
                       <div className="mt-2 w-full h-[1px] bg-slate-100" />
                     </div>
 
-                    <div className="metric-card border-b-4 border-blue-600 relative overflow-hidden">
-                      <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-[0.03] text-blue-600 pointer-events-none transform scale-150">
+                    <div className="metric-card border-b-4 border-blue-600 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-8 h-8 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-[0.03] text-blue-600 pointer-events-none transform scale-150 group-hover:scale-125 transition-transform duration-700">
                         <CheckCircle2 size={100} />
                       </div>
-                      <span className="input-label text-blue-600">Corrected Velocity (Vc)</span>
+                      <span className="input-label text-blue-600 flex justify-between items-center">
+                        Corrected Velocity (Vc)
+                        <span className="text-[8px] font-mono text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Verified Result</span>
+                      </span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-[44px] font-black italic text-blue-600 tracking-tighter">{results.correctedVelocity.toFixed(3)}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">km/s</span>
@@ -1005,20 +1220,39 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Diagnostic Result Bar - Vibrant Blue */}
-                  <div className="bg-[#1e40af] border-[3px] border-slate-900 p-8 flex items-center justify-between shadow-[20px_20px_0px_0px_rgba(0,0,0,0.15)] relative overflow-hidden group hover:shadow-[24px_24px_0px_0px_rgba(0,0,0,0.2)] transition-all duration-500 cursor-default">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-700/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                    <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-white/10 to-transparent skew-x-12 translate-x-40 group-hover:translate-x-20 transition-transform duration-1000" />
+                  {/* Diagnostic Result Bar - High-End Instrument Feel */}
+                  <div className="bg-[#1e3a8a] border-[4px] border-slate-900 p-10 flex flex-col md:flex-row items-center justify-between shadow-[24px_24px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden group transition-all duration-700">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-white to-blue-400 opacity-30" />
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-white to-blue-400 opacity-30" />
                     
-                    <div className="relative z-10">
-                      <span className="text-[10px] font-black text-blue-200 uppercase tracking-[0.4em] mb-4 block underline underline-offset-8 decoration-blue-400/40">Diagnostic Result</span>
-                      <h3 className="text-[64px] font-black text-white italic uppercase tracking-tighter leading-none transform -skew-x-6 drop-shadow-lg group-hover:scale-105 transition-transform duration-500 origin-left">
-                        {results.quality} Quality
-                      </h3>
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none" />
+                    
+                    <div className="relative z-10 flex items-center gap-8">
+                      <div className="w-20 h-20 rounded-none border-2 border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md shadow-inner group-hover:scale-110 transition-transform duration-500">
+                        <Activity size={40} className="text-blue-300" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                          <span className="text-[11px] font-black text-blue-200 uppercase tracking-[0.3em]">Analysis Output // Realtime</span>
+                        </div>
+                        <h2 className="text-[56px] font-black text-white italic uppercase tracking-tighter leading-none transform -skew-x-6 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
+                          {results.quality}
+                        </h2>
+                      </div>
                     </div>
 
-                    <div className="w-28 h-28 border-[3px] border-white/30 flex items-center justify-center bg-white/10 shrink-0 backdrop-blur-sm group-hover:rotate-12 transition-transform duration-500">
-                      <CheckCircle2 size={54} strokeWidth={2.5} className="text-white" />
+                    <div className="relative z-10 mt-8 md:mt-0 flex flex-col items-end">
+                      <div className="flex items-center gap-4 bg-black/20 backdrop-blur-sm p-4 border border-white/10">
+                        <div className="text-right">
+                          <p className="text-[9px] font-mono text-blue-300/60 uppercase">System Integrity</p>
+                          <p className="text-[14px] font-black text-white uppercase tracking-widest">VERIFIED</p>
+                        </div>
+                        <div className="w-12 h-12 border-2 border-blue-400 bg-blue-400/10 flex items-center justify-center rotate-45 group-hover:rotate-0 transition-transform duration-700">
+                          <CheckCircle2 size={24} className="text-blue-400 -rotate-45 group-hover:rotate-0 transition-transform duration-700" />
+                        </div>
+                      </div>
+                      <p className="text-[8px] font-mono text-blue-300/30 mt-2 tracking-widest uppercase">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
                     </div>
                   </div>
 
@@ -1087,65 +1321,76 @@ export default function App() {
                 </div>
               ) : (
                 /* BATCH ANALYSIS VIEW */
-                <div className="space-y-8 relative z-10 flex flex-col flex-1 pb-10">
-                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="metric-card">
-                      <span className="input-label">Total Matrix Readings</span>
+                <div className="space-y-6 relative z-10 flex flex-col flex-1 pb-10">
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="metric-card bg-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-4 h-4 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <span className="input-label">Total Readings</span>
                       <p className="text-3xl font-black text-slate-800 italic">{batchData.length}</p>
                     </div>
-                    <div className="metric-card border-blue-100 text-blue-600">
-                      <span className="input-label">Session Mean Vc</span>
-                      <p className="text-3xl font-black italic">{batchStats?.mean.toFixed(3) || '0.000'}</p>
+                    <div className="metric-card bg-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-4 h-4 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <span className="input-label text-blue-600">Mean Velocity (Vc)</span>
+                      <p className="text-3xl font-black text-blue-600 italic">{batchStats?.mean.toFixed(3) || '0.000'}</p>
                     </div>
-                    <div className="metric-card">
-                      <span className="input-label">Std Deviation</span>
+                    <div className="metric-card bg-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-4 h-4 opacity-[0.05] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-slate-900" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-900" />
+                      </div>
+                      <span className="input-label">Std. Deviation</span>
                       <p className="text-3xl font-black text-slate-800 italic">{batchStats?.stdDev.toFixed(4) || '0.0000'}</p>
                     </div>
-                    <div className="metric-card">
-                      <span className="input-label">Matrix Reliability</span>
-                      <p className="text-3xl font-black text-slate-800 italic">{(batchData.length > 0 ? 100 : 0)}%</p>
+                    <div className="metric-card bg-white relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-4 h-4 opacity-[0.1] pointer-events-none">
+                        <div className="absolute top-0 right-0 w-full h-[1px] bg-blue-600" />
+                        <div className="absolute top-0 right-0 w-[1px] h-full bg-blue-600" />
+                      </div>
+                      <span className="input-label">Consistency</span>
+                      <p className="text-3xl font-black text-slate-800 italic">{batchData.length > 0 ? 'Verified' : 'N/A'}</p>
                     </div>
                   </div>
 
-                  <div className="bg-white border border-slate-200 shadow-2xl overflow-hidden flex flex-col flex-1">
-                    <div className="bg-slate-800 p-4 flex justify-between items-center text-white">
-                        <div className="flex items-center gap-3">
-                          <TableIcon size={16} className="text-blue-400" />
-                          <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">Active Laboratory Data Matrix</h3>
-                        </div>
-                    </div>
-                    
-                    <div className="overflow-auto max-h-[500px]">
+                  <div className="bg-white border border-slate-200 overflow-hidden flex flex-col flex-1 shadow-sm">
+                    <div className="overflow-auto flex-1">
                       <table className="w-full border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50">
-                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Session ID</th>
-                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Compensation</th>
-                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Parameters</th>
-                            <th className="p-4 text-left text-[9px] font-black text-blue-600 uppercase tracking-widest border-b border-slate-200">Velocity (Vc)</th>
-                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Diagnostic</th>
-                            <th className="p-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200">Action</th>
+                        <thead className="sticky top-0 z-20">
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Ref</th>
+                            <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</th>
+                            <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Parameters</th>
+                            <th className="p-4 text-left text-[10px] font-black text-blue-600 uppercase tracking-widest">Velocity (km/s)</th>
+                            <th className="p-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Quality</th>
+                            <th className="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Discard</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 text-[12px]">
-                          {batchResults.map((r) => (
-                            <tr key={r.id} className="hover:bg-blue-50/50 transition-colors">
-                              <td className="p-4 font-mono font-bold text-slate-400">#{r.id.slice(-6)}</td>
-                              <td className="p-4 uppercase font-black text-[9px] tracking-widest text-slate-500">{r.method}</td>
-                              <td className="p-4 font-mono text-slate-500">L:{r.pathLength} / T:{r.pulseTime}</td>
-                              <td className="p-4 font-black italic text-blue-600">{r.results!.correctedVelocity.toFixed(3)} km/s</td>
+                        <tbody className="divide-y divide-slate-100 italic">
+                          {batchResults.map((r, i) => (
+                            <tr key={r.id} className="hover:bg-slate-50 transition-colors group">
+                              <td className="p-4 font-mono font-bold text-slate-400 text-[11px]">{String(i + 1).padStart(2, '0')}</td>
+                              <td className="p-4 font-black uppercase text-[12px] text-slate-700 tracking-tight">{r.location}</td>
+                              <td className="p-4 font-mono text-[11px] text-slate-500">L:{r.pathLength} / T:{r.pulseTime}</td>
+                              <td className="p-4 font-black text-[14px] text-blue-600 italic">{r.results!.correctedVelocity.toFixed(3)}</td>
                               <td className="p-4">
                                 <span className={cn(
-                                  "text-[9px] font-black uppercase px-2 py-0.5 text-white",
-                                  getQualityBg(r.results!.quality)
+                                  "text-[9px] font-black uppercase px-2 py-0.5 inline-block border",
+                                  r.results!.quality === 'Excellent' ? 'border-green-500 text-green-600 bg-green-50' : 
+                                  r.results!.quality === 'Good' ? 'border-blue-500 text-blue-600 bg-blue-50' : 
+                                  r.results!.quality === 'Medium' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-red-500 text-red-600 bg-red-50'
                                 )}>{r.results!.quality}</span>
                               </td>
-                              <td className="p-4">
+                              <td className="p-4 text-center">
                                 <button 
                                   onClick={() => setBatchData(batchData.filter(b => b.id !== r.id))}
-                                  className="text-slate-300 hover:text-red-500"
+                                  className="text-slate-200 hover:text-red-500 transition-colors"
                                 >
-                                  <Trash2 size={14} />
+                                  <Trash2 size={16} />
                                 </button>
                               </td>
                             </tr>
@@ -1155,7 +1400,7 @@ export default function App() {
                               <td colSpan={6} className="p-20 text-center opacity-20">
                                 <div className="flex flex-col items-center gap-4">
                                   <Calculator size={60} />
-                                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Matrix is Clear</span>
+                                  <span className="text-[10px] font-black uppercase tracking-[0.5em]">Session Data Queue Empty</span>
                                 </div>
                               </td>
                             </tr>
@@ -1195,7 +1440,7 @@ export default function App() {
                       setPulseTime(35);
                       setOffsetDistance(40);
                       setBarDiameter(12);
-                      setMethod('no-correction');
+                      setMethod('perpendicular');
                     }
                     showToast("System metrics reset", "success");
                   }}

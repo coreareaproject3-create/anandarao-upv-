@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,28 +33,63 @@ async function startServer() {
     });
   };
 
+  const sendEmail = async ({ to, subject, html, fromName }: { to: string, subject: string, html: string, fromName: string }) => {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    
+    // CRITICAL: Resend ONLY allows 'onboarding@resend.dev' or a verified domain.
+    // If we use the user's Gmail/Email variable as 'from', Resend will reject it.
+    let fromEmail = process.env.EMAIL || process.env.GMAIL_USER || "onboarding@resend.dev";
+
+    if (resendApiKey) {
+      console.log(`[SERVER] Dispatching via Resend to ${to}`);
+      
+      // If the fromEmail is NOT 'onboarding@resend.dev' and NOT a verified domain the user owns,
+      // Resend will fail. For now, we force onboarding@resend.dev for safety if it looks like a generic email.
+      if (!fromEmail.includes('@') || fromEmail.includes('gmail.com') || fromEmail.includes('yahoo.com')) {
+        fromEmail = "onboarding@resend.dev";
+      }
+
+      const resend = new Resend(resendApiKey);
+      const { data, error } = await resend.emails.send({
+        from: `"${fromName}" <${fromEmail}>`,
+        to: [to],
+        subject: subject,
+        html: html,
+      });
+
+      if (error) {
+        console.error("[SERVER] Resend Error Detail:", JSON.stringify(error, null, 2));
+        throw new Error(`Resend Error: ${error.message || 'Unknown Resend Error'}`);
+      }
+      return data;
+    } else {
+      console.log(`[SERVER] Dispatching via SMTP to ${to}`);
+      const transporter = getTransporter();
+      if (!transporter) throw new Error("No mail credentials found (Missing RESEND_API_KEY or SMTP variables)");
+
+      try {
+        return await transporter.sendMail({
+          from: `"${fromName}" <${fromEmail}>`,
+          to: to,
+          subject: subject,
+          html: html,
+        });
+      } catch (smtpError: any) {
+        console.error("[SERVER] SMTP Error Detail:", smtpError);
+        throw new Error(`SMTP Error: ${smtpError.message || 'Check your Gmail App Password'}`);
+      }
+    }
+  };
+
   // API Routes
   app.post("/api/welcome-email", async (req, res) => {
     const { name, email } = req.body;
-    console.log(`[SERVER] Sending welcome email to ${name} at ${email}`);
+    console.log(`[SERVER] Dispatching welcome email to ${name} at ${email}`);
     
-    const transporter = getTransporter();
-
-    if (!transporter) {
-      console.warn("[SERVER] SMTP credentials not set. Email not sent.");
-      return res.json({ 
-        success: true, 
-        message: "Auth successful", 
-        warning: "Laboratory guidelines were logged to console (EMAIL or PASSWORD not set in environment)." 
-      });
-    }
-
-    const fromEmail = process.env.EMAIL || process.env.GMAIL_USER;
-
     try {
-      const mailOptions = {
-        from: `"UPV Analysis Lab" <${fromEmail}>`,
+      await sendEmail({
         to: email,
+        fromName: "UPV Analysis Lab",
         subject: 'Welcome to UPV Analysis Lab - Operating Guidelines',
         html: `
           <div style="font-family: 'Helvetica', 'Arial', sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 0px; background-color: #ffffff;">
@@ -103,27 +139,17 @@ async function startServer() {
             </div>
           </div>
         `
-      };
-
-      await transporter.sendMail(mailOptions);
+      });
       res.json({ success: true, message: "Technical guidelines sent to your inbox." });
     } catch (error) {
       console.error("[SERVER] Error sending email:", error);
-      res.status(500).json({ success: false, error: "Failed to send email. Check your SMTP configuration." });
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "System failed to send email." });
     }
   });
 
   app.post("/api/send-report", async (req, res) => {
     const { name, email, results, method, parameters } = req.body;
-    console.log(`[SERVER] Sending report to ${email}`);
-
-    const transporter = getTransporter();
-
-    if (!transporter) {
-      return res.status(400).json({ success: false, error: "SMTP credentials not configured in laboratory settings." });
-    }
-
-    const fromEmail = process.env.EMAIL || process.env.GMAIL_USER;
+    console.log(`[SERVER] Dispatching lab report to ${email}`);
 
     try {
       const isBatch = Array.isArray(results);
@@ -206,9 +232,9 @@ async function startServer() {
         </div>
       `;
 
-      await transporter.sendMail({
-        from: `"UPV Lab Report" <${fromEmail}>`,
+      await sendEmail({
         to: email,
+        fromName: "UPV Lab Report",
         subject: `[REPORT] UPV Lab Analysis - ${new Date().toLocaleDateString()}`,
         html: htmlContent
       });
@@ -216,7 +242,7 @@ async function startServer() {
       res.json({ success: true, message: "Professional report dispatched to your email." });
     } catch (error) {
       console.error("[SERVER] Error sending report:", error);
-      res.status(500).json({ success: false, error: "System failed to dispatch email. Check SMTP logs." });
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "System failed to dispatch email." });
     }
   });
 

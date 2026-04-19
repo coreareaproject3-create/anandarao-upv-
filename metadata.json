@@ -1,6 +1,6 @@
 {
-  "name": "UPV Concrete Analysis Lab",
-  "description": "Professional laboratory tool for Ultrasonic Pulse Velocity (UPV) analysis with reinforcement correction, batch reporting, and PDF generation.",
+  "name": "WAVE SHIELD",
+  "description": "True velocity. True strength. Professional laboratory tool for Ultrasonic Pulse Velocity (UPV) analysis with rebar disturbance correction.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
