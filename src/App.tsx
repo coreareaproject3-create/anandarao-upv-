@@ -504,7 +504,7 @@ export default function App() {
     };
 
     if (isBatchMode && batchResults.length > 0) {
-      drawHeader('Batch UPV Analysis Report');
+      drawHeader('Batch WAVE SHIELD Analysis Report');
       
       doc.setFontSize(10);
       doc.text(`Facility: Thiagarajar College of Engineering`, 20, 50);
@@ -540,7 +540,7 @@ export default function App() {
 
       // Second Page for Detailed Data
       doc.addPage();
-      drawHeader('Comprehensive Test Results');
+      drawHeader('WAVE SHIELD Comprehensive Results');
       
       // Batch Results Table
       autoTable(doc, {
@@ -564,7 +564,7 @@ export default function App() {
       });
 
     } else {
-      drawHeader('UPV Reinforcement Correction Report');
+      drawHeader('WAVE SHIELD Correction Report');
 
       doc.setFontSize(10);
       doc.text(`Date: ${dateStr}`, 20, 50);
@@ -667,7 +667,7 @@ export default function App() {
     doc.setTextColor(150, 150, 150);
     doc.text('This is a computer-generated laboratory report for internal research and educational purposes only.', 105, 285, { align: 'center' });
 
-    doc.save(`UPV_Batch_Report_${new Date().getTime()}.pdf`);
+    doc.save(`WAVE_SHIELD_Report_${new Date().getTime()}.pdf`);
   };
 
   const sendEmailReport = async () => {
