@@ -359,6 +359,7 @@ export default function App() {
   const [isOtpRequested, setIsOtpRequested] = useState(false);
   const [otpInput, setOtpInput] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   // Batch Mode States
@@ -671,6 +672,36 @@ export default function App() {
     doc.text('This is a computer-generated laboratory report for internal research and educational purposes only.', 105, 285, { align: 'center' });
 
     doc.save(`WAVE_SHIELD_Report_${new Date().getTime()}.pdf`);
+  };
+
+  const sendEmailReport = async () => {
+    if (!user) return;
+    setIsSendingEmail(true);
+    try {
+      const response = await fetch('/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          results: isBatchMode ? batchResults.map(r => ({ ...r, results: r.results })) : results,
+          isBatch: isBatchMode,
+          method,
+          parameters: isBatchMode ? null : { pathLength, pulseTime, offsetDistance, barDiameter }
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        showToast("Laboratory report sent to your inbox", "success");
+      } else {
+        showToast(data.error || "Failed to send report", "error");
+      }
+    } catch (error) {
+      console.error("Email dispatch failed:", error);
+      showToast("Mailing service unavailable", "error");
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const getQualityBg = (quality: string) => {
@@ -1188,6 +1219,13 @@ export default function App() {
 
                   <div className="flex gap-4">
                     <button 
+                      onClick={sendEmailReport}
+                      disabled={isSendingEmail}
+                      className="px-6 py-2 border-2 border-blue-400 bg-blue-600 text-white font-black text-[11px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg active:translate-y-1 block disabled:opacity-50"
+                    >
+                      {isSendingEmail ? 'Dispatching...' : 'Email Report'}
+                    </button>
+                    <button 
                       onClick={handleLogout}
                       className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white flex items-center gap-2 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
                     >
@@ -1458,6 +1496,14 @@ export default function App() {
               )}
 
               <div className="flex flex-wrap gap-4 pt-4 shrink-0">
+                <button 
+                  onClick={sendEmailReport}
+                  disabled={isSendingEmail}
+                  className="group bg-slate-900 text-white px-8 py-4 rounded-none font-black text-[14px] uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 border-2 border-dash-line disabled:opacity-50 w-full md:w-auto"
+                >
+                  <Mail size={18} className={isSendingEmail ? 'animate-pulse' : ''} />
+                  {isSendingEmail ? 'Dispatching Email...' : 'Email Analysis Report'}
+                </button>
                 <button 
                   onClick={() => {
                     generatePDF();
