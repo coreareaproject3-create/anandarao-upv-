@@ -396,9 +396,8 @@ export default function App() {
     let influencePresent: boolean | undefined;
 
     if (m === 'perpendicular') {
-      gamma = 4.606 / VS;
-      kFactor = 1 - (Ls / L) * (1 - gamma);
-      correctedV = 0.9 * kFactor * measuredV;
+      kFactor = 0.9;
+      correctedV = kFactor * measuredV;
     } else if (m === 'parallel') {
       const numerator = 2 * a * VS;
       const termInner = (T * VS) - L;
@@ -587,10 +586,7 @@ export default function App() {
       yPos += 7;
       doc.text(`Correction Type: ${method.charAt(0).toUpperCase() + method.slice(1)}`, 25, yPos);
       
-      if (method === 'perpendicular') {
-        yPos += 7;
-        doc.text(`Bar Diameter (Ls): ${barDiameter} mm`, 25, yPos);
-      } else if (method === 'parallel') {
+      if (method === 'parallel') {
         yPos += 7;
         doc.text(`Offset Distance (a): ${offsetDistance} mm`, 25, yPos);
       }
@@ -711,7 +707,7 @@ export default function App() {
 
   if (showSplash) {
     return (
-      <div className="fixed inset-0 z-[200] bg-[#1a2b38] flex flex-col items-center justify-center p-6 overflow-hidden">
+      <div className="fixed inset-0 z-[200] bg-[#1a2b38] flex flex-col items-center justify-center p-6 overflow-y-auto">
         {/* Subtle grid background */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]" />
         
@@ -720,17 +716,17 @@ export default function App() {
             initial={{ scale: 0.5, opacity: 0, rotateY: 180 }}
             animate={{ scale: 1, opacity: 1, rotateY: 0 }}
             transition={{ duration: 1.5, type: "spring", stiffness: 100 }}
-            className="mb-12"
+            className="mb-8"
           >
-            <WAVEShieldLogo size={280} />
+            <WAVEShieldLogo size={220} />
           </motion.div>
 
-          <div className="overflow-hidden mb-12">
+          <div className="overflow-hidden mb-8">
             <motion.h1
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
-              className="text-[64px] font-black italic tracking-tighter leading-none text-white drop-shadow-2xl flex flex-col"
+              className="text-[52px] md:text-[64px] font-black italic tracking-tighter leading-none text-white drop-shadow-2xl flex flex-col"
             >
               <span>WAVE</span>
               <span className="text-blue-500 -mt-4">SHIELD</span>
@@ -747,7 +743,7 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 2.2, duration: 1 }}
-              className="mt-6 text-blue-300 font-black uppercase tracking-[0.4em] text-sm italic"
+              className="mt-4 text-blue-300 font-black uppercase tracking-[0.4em] text-xs italic"
             >
               True velocity . True strength
             </motion.p>
@@ -757,28 +753,28 @@ export default function App() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.8, duration: 0.8 }}
-            className="max-w-xl mx-auto text-center mb-12 px-8"
+            className="max-w-xl mx-auto text-center mb-10 px-8"
           >
-            <div className="p-6 bg-slate-900/60 backdrop-blur-xl border-t-2 border-blue-500/50 rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-              <p className="text-[15px] md:text-[18px] text-blue-100 font-medium leading-relaxed italic drop-shadow-sm">
+            <div className="p-4 md:p-6 bg-slate-900/60 backdrop-blur-xl border-t-2 border-blue-500/50 rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+              <p className="text-[14px] md:text-[16px] text-blue-100 font-medium leading-relaxed italic drop-shadow-sm">
                 WaveShield corrects ultrasonic pulse velocity (UPV) readings affected by steel rebar in reinforced concrete, giving you accurate results without overestimation.
               </p>
             </div>
           </motion.div>
 
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 3.2, duration: 0.5 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowSplash(false)}
-            className="group relative flex items-center justify-center w-24 h-24 rounded-full border-4 border-white/20 hover:border-blue-500 transition-colors shadow-2xl"
-          >
-             <div className="absolute inset-2 rounded-full border border-blue-500/30 animate-ping opacity-50" />
-             <Play size={32} className="text-white fill-white ml-2 transition-transform group-hover:scale-125" />
-          </motion.button>
-        </div>
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 3.2, duration: 0.5 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowSplash(false)}
+              className="group relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white/20 hover:border-blue-500 transition-colors shadow-2xl shrink-0"
+            >
+               <div className="absolute inset-2 rounded-full border border-blue-500/30 animate-ping opacity-50" />
+               <Play size={28} className="text-white fill-white ml-1.5 transition-transform group-hover:scale-125 md:size-[32px]" />
+            </motion.button>
+          </div>
 
         {/* Floating tech elements */}
         <div className="absolute top-10 left-10 w-24 h-24 border border-white/10 rounded-full animate-pulse" />
@@ -797,7 +793,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 overflow-y-auto"
           >
             <UPVWaveAnimation>
               <div className="relative z-10 bg-[#cfd8dc] border-4 border-dash-line pt-8 px-8 pb-16 w-full max-w-md shadow-[24px_24px_0px_0px_rgba(0,0,0,0.4)] login-concrete-cube group/cube">
@@ -1058,20 +1054,6 @@ export default function App() {
                             type="number" 
                             value={offsetDistance} 
                             onChange={(e) => setOffsetDistance(Number(e.target.value))}
-                            className="dash-input pr-12"
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-slate-400">mm</span>
-                        </div>
-                      </div>
-                    )}
-                    {method === 'perpendicular' && (
-                      <div className="space-y-2">
-                        <label className="input-label">Bar Diameter (Ls)</label>
-                        <div className="relative">
-                          <input 
-                            type="number" 
-                            value={barDiameter} 
-                            onChange={(e) => setBarDiameter(Number(e.target.value))}
                             className="dash-input pr-12"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-slate-400">mm</span>
