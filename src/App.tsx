@@ -16,7 +16,8 @@ import {
   Table as TableIcon, 
   Play,
   Zap,
-  Thermometer
+  Thermometer,
+  Mail
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { jsPDF } from 'jspdf';
@@ -355,6 +356,9 @@ export default function App() {
   const [barDiameter, setBarDiameter] = useState<number>(12);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isOtpRequested, setIsOtpRequested] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   // Batch Mode States
@@ -679,6 +683,70 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setIsOtpRequested(false);
+    setOtpInput('');
+    setTempEmail('');
+    setTempName('');
+  };
+
+  const handleRequestOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tempName || !tempEmail) return;
+    
+    setIsLoggingIn(true);
+    try {
+      const response = await fetch('/api/request-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: tempName, email: tempEmail }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setIsOtpRequested(true);
+        showToast("OTP sent to your email", "success");
+        if (data.debug) {
+          console.log("DEBUG: Your OTP is", data.debug);
+          showToast(`DEBUG OTP: ${data.debug}`, "warning");
+        }
+      } else {
+        showToast(data.error || "Failed to send OTP", "error");
+      }
+    } catch (error) {
+      console.error("OTP request failed:", error);
+      showToast("Mailing service offline", "error");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpInput) return;
+
+    setIsVerifyingOtp(true);
+    try {
+      const response = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: tempEmail, otp: otpInput }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setUser({ name: tempName, email: tempEmail });
+        showToast("Login Successful", "success");
+      } else {
+        showToast(data.error || "Verification failed", "error");
+      }
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+      showToast("Verification service error", "error");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
   if (showSplash) {
     return (
       <div className="fixed inset-0 z-[200] bg-[#1a2b38] flex flex-col items-center justify-center p-6 overflow-y-auto">
@@ -808,52 +876,91 @@ export default function App() {
                   </div>
                   
                   <div className="mt-4 flex flex-col items-center gap-2">
-                    <form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (tempName && tempEmail) {
-                          setUser({ name: tempName, email: tempEmail });
-                        }
-                      }}
-                      className="space-y-6 w-full"
-                    >
-                      <div className="space-y-2">
-                        <label className="input-label">Tester Name</label>
-                        <input
-                          required
-                          disabled={isLoggingIn}
-                          type="text"
-                          value={tempName}
-                          onChange={(e) => setTempName(e.target.value)}
-                          placeholder="Enter full name"
-                          className="dash-input bg-white/80"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="input-label">Email Address</label>
-                        <input
-                          required
-                          disabled={isLoggingIn}
-                          type="email"
-                          value={tempEmail}
-                          onChange={(e) => setTempEmail(e.target.value)}
-                          placeholder="name@example.com"
-                          className="dash-input bg-white/80"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isLoggingIn}
-                        className="w-full max-w-[260px] mx-auto py-3 bg-dash-accent text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
+                    {!isOtpRequested ? (
+                      <form 
+                        onSubmit={handleRequestOtp}
+                        className="space-y-6 w-full"
                       >
-                        {isLoggingIn ? "Authenticating..." : (
-                          <>
-                            Launch Analysis <Play size={14} fill="white" />
-                          </>
-                        )}
-                      </button>
-                    </form>
+                        <div className="space-y-2">
+                          <label className="input-label">Tester Name</label>
+                          <input
+                            required
+                            disabled={isLoggingIn}
+                            type="text"
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            placeholder="Enter full name"
+                            className="dash-input bg-white/80"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="input-label">Email Address</label>
+                          <input
+                            required
+                            disabled={isLoggingIn}
+                            type="email"
+                            value={tempEmail}
+                            onChange={(e) => setTempEmail(e.target.value)}
+                            placeholder="name@example.com"
+                            className="dash-input bg-white/80"
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isLoggingIn}
+                          className="w-full max-w-[260px] mx-auto py-3 bg-dash-accent text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
+                        >
+                          {isLoggingIn ? "Requesting OTP..." : (
+                            <>
+                              Request OTP <Mail size={14} fill="white" />
+                            </>
+                          )}
+                        </button>
+                      </form>
+                    ) : (
+                      <form 
+                        onSubmit={handleVerifyOtp}
+                        className="space-y-6 w-full"
+                      >
+                        <div className="space-y-2">
+                          <label className="input-label text-blue-500 font-black">Email OTP Verification</label>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase mb-2">Code sent to: {tempEmail}</p>
+                          <input
+                            required
+                            disabled={isVerifyingOtp}
+                            type="text"
+                            maxLength={6}
+                            value={otpInput}
+                            onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                            placeholder="Enter 6-digit OTP"
+                            className="dash-input bg-white/80 text-center text-2xl tracking-[0.5em] font-black"
+                          />
+                        </div>
+
+                        <div className="space-y-3 flex flex-col items-center">
+                          <button
+                            type="submit"
+                            disabled={isVerifyingOtp}
+                            className="w-full max-w-[260px] mx-auto py-3 bg-blue-600 text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
+                          >
+                            {isVerifyingOtp ? "Verifying..." : (
+                              <>
+                                Verify & Access <Play size={14} fill="white" />
+                              </>
+                            )}
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => setIsOtpRequested(false)}
+                            className="text-[10px] font-black text-slate-500 uppercase hover:text-blue-600 transition-colors"
+                          >
+                            Change Details
+                          </button>
+                        </div>
+                      </form>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1081,7 +1188,7 @@ export default function App() {
 
                   <div className="flex gap-4">
                     <button 
-                      onClick={() => setUser(null)}
+                      onClick={handleLogout}
                       className="px-6 py-2 border-2 border-white/40 bg-white/5 text-white flex items-center gap-2 font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-800 transition-all shadow-lg backdrop-blur-sm"
                     >
                       <LogOut size={14} />
