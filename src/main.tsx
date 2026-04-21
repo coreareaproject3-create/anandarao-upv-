@@ -1,10 +1,9 @@
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
+import { AppRegistry } from 'react-native';
+import MobileApp from './MobileApp.tsx';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+AppRegistry.registerComponent('App', () => MobileApp);
+AppRegistry.runApplication('App', {
+  initialProps: {},
+  rootTag: document.getElementById('root')!,
+});

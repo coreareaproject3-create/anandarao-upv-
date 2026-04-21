@@ -16,6 +16,12 @@
 
 body {
   @apply bg-white font-sans min-h-screen text-slate-900 overflow-x-hidden;
+  display: flex;
+}
+
+#root {
+  display: flex;
+  flex: 1;
 }
 
 .concrete-layer {
