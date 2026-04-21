@@ -96,6 +96,10 @@ export default function MobileApp() {
   }, [method, pathLength, pulseTime, offsetDistance, barDiameter]);
 
   const generatePDF = () => {
+    if (Platform.OS !== 'web') {
+      alert('PDF generation is optimized for Web. For Android deployment, please use expo-print or react-native-html-to-pdf.');
+      return;
+    }
     const doc = new jsPDF();
     
     // Header
