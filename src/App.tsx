@@ -17,12 +17,16 @@ import {
   Play,
   Zap,
   Thermometer,
-  Mail
+  Mail,
+  Brain,
+  Terminal,
+  RefreshCw
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { CorrectionMethod, CalculationResults, ConcreteCriteria, BatchReading } from './types';
+import Markdown from 'react-markdown';
 
 const QUALITY_CRITERIA: ConcreteCriteria[] = [
   { velocity: '> 4.5', quality: 'Excellent' },
@@ -356,11 +360,11 @@ export default function App() {
   const [barDiameter, setBarDiameter] = useState<number>(12);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isOtpRequested, setIsOtpRequested] = useState(false);
-  const [otpInput, setOtpInput] = useState('');
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
+
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Batch Mode States
   const [isBatchMode, setIsBatchMode] = useState(false);
@@ -704,6 +708,43 @@ export default function App() {
     }
   };
 
+  const handleAIAnalysis = async () => {
+    if (isAnalyzing) return;
+    setIsAnalyzing(true);
+    setAiInsight(null);
+
+    try {
+      const response = await fetch('/api/ai-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: {
+            method,
+            parameters: {
+              pathLength,
+              pulseTime,
+              offsetDistance,
+              barDiameter
+            },
+            results
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (data.analysis) {
+        setAiInsight(data.analysis);
+      } else {
+        throw new Error(data.error || 'Insight Engine Timeout');
+      }
+    } catch (error) {
+      console.error(error);
+      setAiInsight("### SYSTEM ERROR\nUnable to establish neural link with Civil Engineering Lab. Please check server status.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const getQualityBg = (quality: string) => {
     switch (quality) {
       case 'Excellent': return 'bg-dash-success';
@@ -716,66 +757,21 @@ export default function App() {
 
   const handleLogout = () => {
     setUser(null);
-    setIsOtpRequested(false);
-    setOtpInput('');
     setTempEmail('');
     setTempName('');
   };
 
-  const handleRequestOtp = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tempName || !tempEmail) return;
     
     setIsLoggingIn(true);
-    try {
-      const response = await fetch('/api/request-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: tempName, email: tempEmail }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setIsOtpRequested(true);
-        showToast("OTP sent to your email", "success");
-        if (data.debug) {
-          console.log("DEBUG: Your OTP is", data.debug);
-          showToast(`DEBUG OTP: ${data.debug}`, "warning");
-        }
-      } else {
-        showToast(data.error || "Failed to send OTP", "error");
-      }
-    } catch (error) {
-      console.error("OTP request failed:", error);
-      showToast("Mailing service offline", "error");
-    } finally {
+    // Simulate system access delay
+    setTimeout(() => {
+      setUser({ name: tempName, email: tempEmail });
+      showToast("Access Granted - Systems Online", "success");
       setIsLoggingIn(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otpInput) return;
-
-    setIsVerifyingOtp(true);
-    try {
-      const response = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: tempEmail, otp: otpInput }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setUser({ name: tempName, email: tempEmail });
-        showToast("Login Successful", "success");
-      } else {
-        showToast(data.error || "Verification failed", "error");
-      }
-    } catch (error) {
-      console.error("OTP verification failed:", error);
-      showToast("Verification service error", "error");
-    } finally {
-      setIsVerifyingOtp(false);
-    }
+    }, 800);
   };
 
   if (showSplash) {
@@ -907,91 +903,47 @@ export default function App() {
                   </div>
                   
                   <div className="mt-4 flex flex-col items-center gap-2">
-                    {!isOtpRequested ? (
-                      <form 
-                        onSubmit={handleRequestOtp}
-                        className="space-y-6 w-full"
-                      >
-                        <div className="space-y-2">
-                          <label className="input-label">Tester Name</label>
-                          <input
-                            required
-                            disabled={isLoggingIn}
-                            type="text"
-                            value={tempName}
-                            onChange={(e) => setTempName(e.target.value)}
-                            placeholder="Enter full name"
-                            className="dash-input bg-white/80"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="input-label">Email Address</label>
-                          <input
-                            required
-                            disabled={isLoggingIn}
-                            type="email"
-                            value={tempEmail}
-                            onChange={(e) => setTempEmail(e.target.value)}
-                            placeholder="name@example.com"
-                            className="dash-input bg-white/80"
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
+                    <form 
+                      onSubmit={handleLogin}
+                      className="space-y-6 w-full"
+                    >
+                      <div className="space-y-2">
+                        <label className="input-label">Tester Name</label>
+                        <input
+                          required
                           disabled={isLoggingIn}
-                          className="w-full max-w-[260px] mx-auto py-3 bg-dash-accent text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
-                        >
-                          {isLoggingIn ? "Requesting OTP..." : (
-                            <>
-                              Request OTP <Mail size={14} fill="white" />
-                            </>
-                          )}
-                        </button>
-                      </form>
-                    ) : (
-                      <form 
-                        onSubmit={handleVerifyOtp}
-                        className="space-y-6 w-full"
-                      >
-                        <div className="space-y-2">
-                          <label className="input-label text-blue-500 font-black">Email OTP Verification</label>
-                          <p className="text-[10px] text-slate-500 font-bold uppercase mb-2">Code sent to: {tempEmail}</p>
-                          <input
-                            required
-                            disabled={isVerifyingOtp}
-                            type="text"
-                            maxLength={6}
-                            value={otpInput}
-                            onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
-                            placeholder="Enter 6-digit OTP"
-                            className="dash-input bg-white/80 text-center text-2xl tracking-[0.5em] font-black"
-                          />
-                        </div>
+                          type="text"
+                          value={tempName}
+                          onChange={(e) => setTempName(e.target.value)}
+                          placeholder="Enter full name"
+                          className="dash-input bg-white/80"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="input-label">Email Address</label>
+                        <input
+                          required
+                          disabled={isLoggingIn}
+                          type="email"
+                          value={tempEmail}
+                          onChange={(e) => setTempEmail(e.target.value)}
+                          placeholder="name@example.com"
+                          className="dash-input bg-white/80"
+                        />
+                      </div>
 
-                        <div className="space-y-3 flex flex-col items-center">
-                          <button
-                            type="submit"
-                            disabled={isVerifyingOtp}
-                            className="w-full max-w-[260px] mx-auto py-3 bg-blue-600 text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
-                          >
-                            {isVerifyingOtp ? "Verifying..." : (
-                              <>
-                                Verify & Access <Play size={14} fill="white" />
-                              </>
-                            )}
-                          </button>
-                          
-                          <button
-                            type="button"
-                            onClick={() => setIsOtpRequested(false)}
-                            className="text-[10px] font-black text-slate-500 uppercase hover:text-blue-600 transition-colors"
-                          >
-                            Change Details
-                          </button>
-                        </div>
-                      </form>
-                    )}
+                      <button
+                        type="submit"
+                        disabled={isLoggingIn}
+                        className="w-full max-w-[260px] mx-auto py-3 bg-dash-accent text-white font-black uppercase tracking-widest text-[10px] border-4 border-dash-line flex items-center justify-center gap-2 hover:bg-blue-700 active:translate-y-1 transition-all disabled:opacity-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
+                      >
+                        {isLoggingIn ? "Initializing..." : (
+                          <>
+                            Initiate System <Play size={14} fill="white" />
+                          </>
+                        )}
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -1379,27 +1331,84 @@ export default function App() {
                   </div>
 
                   {/* Session Commitment Area */}
-                  <div className="mt-auto">
-                    <button 
-                      onClick={() => {
-                          setBatchData([...batchData, {
-                            id: Date.now().toString(),
-                            location: currentRowLocation || `Reading ${batchData.length + 1}`,
-                            method,
-                            pathLength,
-                            pulseTime,
-                            offsetDistance,
-                            barDiameter,
-                            results,
-                            timestamp: new Date().toISOString()
-                          }]);
-                          showToast(`Analysis Committed to Session Matrix`);
-                          setCurrentRowLocation('');
-                      }}
-                      className="px-10 py-5 bg-slate-800 text-white font-black uppercase tracking-widest text-[11px] border-2 border-slate-700 flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-[12px_12px_30px_rgba(0,0,0,0.2)] hover:shadow-[16px_16px_40px_rgba(0,0,0,0.3)] hover:-translate-y-1 active:scale-95 self-start"
-                    >
-                      <Plus size={16} /> Commit Reading to Session Table
-                    </button>
+                  <div className="mt-auto flex flex-col gap-6">
+                    <div className="bg-slate-900 border-2 border-slate-700 p-6 shadow-[12px_12px_30px_rgba(0,0,0,0.2)]">
+                      <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <button 
+                          onClick={handleAIAnalysis}
+                          disabled={isAnalyzing}
+                          className={cn(
+                            "flex-1 w-full bg-blue-600 text-white py-4 font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50",
+                            isAnalyzing && "bg-slate-700"
+                          )}
+                        >
+                          {isAnalyzing ? (
+                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+                              <RefreshCw size={18} />
+                            </motion.div>
+                          ) : (
+                            <Brain size={18} />
+                          )}
+                          {isAnalyzing ? "Processing AI Insights..." : "Run AI Structural Insight"}
+                          <Zap size={14} className={cn(isAnalyzing ? "opacity-30" : "fill-white")} />
+                        </button>
+                        
+                        <button 
+                          onClick={() => {
+                              setBatchData([...batchData, {
+                                id: Date.now().toString(),
+                                location: currentRowLocation || `Reading ${batchData.length + 1}`,
+                                method,
+                                pathLength,
+                                pulseTime,
+                                offsetDistance,
+                                barDiameter,
+                                results
+                              }]);
+                              showToast(`Analysis Committed to Session Matrix`);
+                              setCurrentRowLocation('');
+                          }}
+                          className="flex-1 w-full bg-white text-slate-900 py-4 font-black uppercase tracking-widest text-[11px] border-2 border-slate-200 flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95"
+                        >
+                          <Plus size={16} /> Commit Reading to Session Table
+                        </button>
+                      </div>
+
+                      <AnimatePresence>
+                        {aiInsight && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="mt-6 border-t-2 border-slate-700 pt-6 overflow-hidden"
+                          >
+                            <div className="bg-[#0f172a] border border-[#334155] overflow-hidden">
+                              <div className="bg-[#1e293b] p-3 border-b border-[#334155] flex justify-between items-center">
+                                <div className="flex gap-1.5">
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Terminal size={12} className="text-slate-400" />
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WAVE_SHIELD_V4.0_INSIGHT_ENGINE</span>
+                                </div>
+                              </div>
+                              <div className="p-6 max-h-[300px] overflow-y-auto text-slate-200 font-medium leading-relaxed prose prose-invert prose-sm max-w-none">
+                                <Markdown>{aiInsight}</Markdown>
+                              </div>
+                              <div className="bg-[#1e293b] p-3 border-t border-[#334155] flex justify-between items-center px-6">
+                                <span className="text-[8px] font-bold text-slate-500 uppercase">Analysis ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                                <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-sm">
+                                  <Activity size={10} className="text-blue-500" />
+                                  <span className="text-[8px] font-black text-blue-500 uppercase">Neural Link Established</span>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               ) : (
